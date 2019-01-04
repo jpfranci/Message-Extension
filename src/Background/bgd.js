@@ -112,7 +112,7 @@ function tryToRemoveTabs() {
     notifications.create(CUTE_MESSAGE_NOTIFICATION_NAME, {
         type: 'basic',
         iconUrl: '../icons/heart.jpg',
-        title: 'A message to keep the bae motivated',
+        title: 'Warning',
         message: "Unproductive tabs closing in 5 seconds",
         silent: true
     });
@@ -200,7 +200,7 @@ function createNotificationCuteMessage() {
     notifications.create(CUTE_MESSAGE_NOTIFICATION_NAME, {
         type: 'basic',
         iconUrl: '../icons/heart.jpg',
-        title: 'A message to keep the bae motivated',
+        title: 'A message for you',
         message: messageToAccess,
         silent: true,
         requireInteraction: true

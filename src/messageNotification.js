@@ -9,7 +9,7 @@ function showNotification(message) {
 
     let messageTextHeader = document.createElement("h2");
     messageTextHeader.className = 'header-message';
-    messageTextHeader.innerText = "A message for the bae";
+    messageTextHeader.innerText = "A message for you";
     newMessage.appendChild(messageTextHeader);
 
     let messageText = document.createElement("h2");

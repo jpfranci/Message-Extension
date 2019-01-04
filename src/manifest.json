@@ -1,7 +1,7 @@
 {
   "name": "Productivity Timer and Messages",
   "version": "1.0",
-  "description": "Keep the bae motivated",
+  "description": "Stay productive and motivated by timing your breaks and blocking websites. Also features motivational quotes",
   "options_page" : "Local Pages/options.html",
   "permissions": ["tabs", "webRequest", "webRequestBlocking", "<all_urls>",
     "notifications", "alarms", "activeTab", "declarativeContent", "http://*/*",

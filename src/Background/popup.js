@@ -2,8 +2,7 @@ const PROGRAM_STATE = "programState";
 const PROGRAM_START_MESSAGE = "starting app";
 const PROGRAM_END_MESSAGE = "ending app";
 
-let introMessageArray = ["Hi beautiful", "Lets get this bread", "You're cute", "You go girl", "I love you so much",
-"I'm so proud of you", "How are you so cute", "I love you to the moon and back", "You are so amazing", "You are so smart"];
+let introMessageArray = ["Let's get to business", "Believe in yourself", "You can do this"];
 
 import {storage, getRandomIndexToAccess, runtime} from "./bgd.js";
 export {PROGRAM_START_MESSAGE, PROGRAM_END_MESSAGE, PROGRAM_STATE};
@@ -38,11 +37,11 @@ function setButtonAndProgramState(data) {
     document.getElementById('buttonID').addEventListener('click', function () {
         storage.set({[PROGRAM_STATE]: !programState}, function () {
             if(!programState) {
-                button.innerText = "Hype it up babe";
+                button.innerText = "Closing unproductive apps";
                 runtime.sendMessage("starting app");
                 setTimeout(function() {createTimerTabIfNeeded()}, 2000);
             } else {
-                button.innerText = "Good work today babe";
+                button.innerText = "Good work today";
                 runtime.sendMessage("ending app");
             }
             setTimeout(function() {close();}, 2000);
