@@ -10,12 +10,7 @@
     "page": "Background/background.html",
     "persistent": true
   },
-  "icons": {
-    "16": "icons/best_square16.png",
-    "32": "icons/best_square32.png",
-    "48": "icons/best_square48.png",
-    "128": "icons/heart_fingers128.png"
-  },
+ 
   "page_action": {
     "default_popup": "Background/popup.html"
   },
