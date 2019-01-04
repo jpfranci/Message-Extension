@@ -1,0 +1,272 @@
+@import url('https://fonts.googleapis.com/css?family=Damion|Muli:400,600');
+
+body {
+    font-family: 'Open Sans', sans-serif;
+    margin: 0px;
+    background: url("https://cdn.hipwallpaper.com/i/37/33/M7gW4k.jpg");
+}
+
+@viewport {
+    width: device-width ;
+    zoom: 1.0 ;
+  }
+
+@media only screen and (min-width: 900px) {
+    body{
+        font-size: 16px;
+    }
+ }
+
+ @media only screen and (max-width: 899px) {
+     body {
+         font-size: 11px;
+     }
+ }
+
+
+.navbar {
+    background-image: linear-gradient(to right, white, #ffeec9);
+    transition: opacity 0.5s ease;
+    overflow: hidden;
+    position: fixed;
+    top: 0%;
+    width: 100%;
+    opacity: 0.05;
+}
+
+.top-option-container {
+    width: 100%;
+    position: absolute;
+    top: 30%;
+    height: 30%;
+}
+
+.lower-option-container {
+    width: 100%;
+    position: absolute;
+    top: 50%;
+    height: 30%;
+}
+
+.box-message-container {
+    width: 600px;
+    position: relative;
+    height: 300px;
+}
+
+.navbar:hover {
+    opacity: 0.6;
+}
+
+.navbar a {
+    float: left;
+    display: block;
+    color: #000000;
+    text-align: center;
+    padding: 14px 40px;
+    text-decoration: none;
+    font-size: 1.5em;
+    font-family: 'Ranga';
+}
+
+.navbar a:hover {
+    background-color: #f7968f;
+    color: black;
+}
+
+.navbar a.active {
+    margin-left: 35%;
+    background-image: linear-gradient(to right, white, #ffc4cd);
+    color: #000000;
+    opacity: 0.8;
+}
+
+img {
+    border: 4px solid #ffffff;
+    border-radius: 10px;
+    width: auto;
+    height: auto; 
+}
+
+.container {
+    position:fixed;
+    width: 25%;
+    bottom:0%;
+    right:38%;
+}
+
+.image {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.overlay {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    width: 100%;
+    opacity: 0;
+    transition: .5s ease;
+    background-color: #5a8cf6;
+    border: 4px solid #ffffff;
+    border-radius: 10px;
+}
+
+.container:hover .overlay {
+    opacity: 0.7;
+}
+
+.text {
+    font-family: 'Nunito', sans-serif;
+    color: #ffffff;
+    font-size: 1.5em;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+.button_cont_left {
+    left: 7%;
+    position: absolute;
+    top: 33%;
+}
+
+.button_cont_right {
+    left: 67%;
+    position: absolute;
+    top: 37%;
+}
+
+.button_cont_bottom {
+    bottom: 16%;
+    position: absolute;
+    left: 8%;
+}
+
+
+.fancyButton {
+    background-image: linear-gradient(to right, #fdfbff, #fffde6);
+    padding: 20px;
+    border: 1px solid #d4d4d4 !important;
+    border-radius: 6px;
+    height: 90%; 
+    width: auto;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 0.9em;
+}
+
+.timer {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+}
+
+.fancyButton:hover {
+    color: #000000 !important;
+    background-image: linear-gradient(to right, white, #ff898c);
+    transition: background-image 2s;
+
+}
+
+.blur {
+    -webkit-filter: blur(3px);
+    -moz-filter: blur(3px);
+    -o-filter: blur(3px);
+    -ms-filter: blur(3px);
+    filter: blur(3px);
+}
+
+h2 {
+    font-family: 'Damion', cursive;
+    font-weight: 400;
+    color: #484848;
+    font-size: 35px;
+    text-align: center;
+    position: relative;
+    margin: 80px;
+}
+h2:before {
+    position: absolute;
+    content: '';
+    width: 100%;
+    left: 0;
+    top: 22px;
+    background-image: linear-gradient(to right, #edf0ff, #b5d8e8);
+    height: 1px;
+}
+h2 i {
+    font-style: normal;
+    background-image: linear-gradient(to right, white, #ffeec9);
+    position: relative;
+    padding: 10px;
+}
+:focus{outline: none;}
+
+label {
+    display: inline-block;
+    width: 100%;
+    text-align: left;
+}​
+
+ .container{width:600px; margin:10px auto;}
+
+::-webkit-input-placeholder {
+    text-align: center;
+}
+
+
+:focus{outline: none;}
+
+.col-3{
+    position: relative;
+    left: 5%;
+    width: 27.33%; 
+    top: 6%; 
+}
+
+.col-2{
+    position: absolute;
+    left: 65%;
+    top: 4%; 
+    width: 27.33%; 
+}
+
+.col-1{
+    left: 5%;
+    top: 18%; 
+    width: 27.33%; 
+    position: relative;
+}
+
+
+input[type="text"]{
+    font: 15px/24px "Nunito", Arial, sans-serif; 
+    color: #333; 
+    width: 100%; 
+    box-sizing: border-box; 
+    letter-spacing: 1px;
+}
+
+.effect-1{
+    border: 0; 
+    position: absolute;
+    float: left;
+    text-overflow: ellipsis;
+    padding: 7px 0; 
+    border-bottom: 1px solid #ccc;
+    opacity: 0.9;
+    background-image: linear-gradient(to right, #fdfbff, #fffde6);
+}
+.effect-1 ~ .focus-border{position: absolute; bottom: 0; left: 0; width: 0; height: 2px; background-color: #70a6af; transition: 0.4s; }
+.effect-1:focus ~ .focus-border{
+    width: 100%;
+     transition: 0.4s;
+    }

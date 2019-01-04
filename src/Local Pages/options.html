@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel = "stylesheet" href="options.css">
+    <link rel = "stylesheet" href="../messageNotification.css">
+    <link href="https://fonts.googleapis.com/css?family=Francois+One|Ranga|Vollkorn" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Open Sans" rel="stylesheet">
+    <h2><i>Options For The Bae</i></h2>
+</head>
+<body>
+    <div class = 'navbar'>
+        <a class = "active" href = "">Options</a>
+        <a href = "blocked.html">Timer</a>
+        <a href = "message-archive.html">Message Archive</a>
+    </div>
+
+    <div class = "top-option-container">       
+        <span>
+            <div class = "col-3">
+                    <label id = "cuteMessageLabel" for = "cuteMessage">x</label>
+                    <input class="effect-1" id="cuteMessage" type="text" placeholder="Enter how often you want messages (in mins)">
+                        <span class="focus-border"></span>
+            </div>
+            <div class="button_cont_left"><button id="cuteMessageButton" class="fancyButton">
+                    Click here to change message frequency</button></div>
+    
+            <div class = "col-2">
+                <span>
+                    <label id = "blockLabel" for = "blockMessage">x</label>
+                    <input class="effect-1" id="blockMessage" type="text"
+                       placeholder="Enter how long you want stuff blocked (in mins)">
+                    <span class="focus-border"></span>
+                </span>
+            </div>
+            <div class="button_cont_right"><button id="blockMessageButton" class="fancyButton">
+                    Click here to set social media block time</button></div>
+                </span>   
+
+    </div>
+
+    <div class = "lower-option-container">
+        <div class = "col-1">
+            <label id = "breakLabel" for = "breakMessage">x</label>
+            <input class="effect-1" id="breakMessage" type="text"
+                   placeholder="Enter how long you want breaks to be (in mins)">
+            <span class="focus-border"></span>
+        </div>
+
+        <div class="button_cont_bottom"><button id="breakMessageButton" class="fancyButton">
+            Click here to change break time length</button></div>
+    </div>
+    
+    <div class="container">
+        <img id = "imageInserted" src = null alt="Avatar" class="image">
+        <div class="overlay">
+            <div class="text">I love you to the moon and back</div>
+        </div>
+    </div>
+</body>
+<script  type="module" src="options.js"></script>
+</html>

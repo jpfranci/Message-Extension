@@ -1,0 +1,49 @@
+@media only screen and (min-width: 900px) {
+    body{
+        font-size: 16px;
+    }
+ }
+
+ @media only screen and (max-width: 899px) {
+     body {
+         font-size: 11px;
+     }
+ }
+
+.messageList {
+    width: 60%;
+    margin: 10px;
+    position: absolute;
+    right: 19%;
+    top: 25%;
+    background-image: linear-gradient(to bottom, #fffff7, #ffd9b7);
+    border-radius: 10px;
+}
+
+.archiveBody {
+    height: 100%;
+    background: linear-gradient(to bottom, #ffffff, #ffbdac) no-repeat fixed;
+    margin: 0;
+}
+
+ol {
+    color: #000000;
+    list-style-type: none;
+}
+
+ol li {
+    position: relative;
+    font: bold italic 1.2em "Open Sans", sans-serif;
+    margin-bottom: 10px;
+    margin-top: 10px;
+}
+
+li p {
+    font: 1em "Open Sans", sans-serif;
+    padding-left: 5%;
+    color: #292929;
+}
+
+span {
+    position: absolute;
+}

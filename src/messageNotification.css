@@ -1,0 +1,37 @@
+
+.fancy-box-inject {
+    background-image: linear-gradient(to right, white, #ffeec9);
+    text-align: center;
+    border-radius: 5px;
+    padding: 10px;
+    width: 300px;
+    position: fixed;
+    z-index: 9999999;
+    opacity: 0.8;
+    top: 0;
+    transition: opacity 0.5s ease;
+    right: 0;
+}
+
+.fancy-box-inject:hover {
+    opacity: 1;
+}
+
+.header-message {
+    background-image: linear-gradient(to right, white, #ffeec9);
+    font-family: 'Montserrat',sans-serif;
+    font-size: 18px;
+    color: black;
+    position: relative;
+    font-weight: bold;
+    top: 0;
+    margin: 10px;
+}
+
+.fancy-heading-inject {
+    font-family: 'Montserrat',sans-serif;
+    font-size: 18px;
+    font-weight: 400;
+    color: #727272;
+    position: relative;
+}
