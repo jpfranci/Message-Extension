@@ -1,5 +1,5 @@
 {
-  "name": "Bae's Messages",
+  "name": "Productivity Timer and Messages",
   "version": "1.0",
   "description": "Keep the bae motivated",
   "options_page" : "Local Pages/options.html",
@@ -10,7 +10,6 @@
     "page": "Background/background.html",
     "persistent": true
   },
- 
   "page_action": {
     "default_popup": "Background/popup.html"
   },
