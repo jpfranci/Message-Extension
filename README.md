@@ -11,3 +11,5 @@ For extra inspiration, a motivational quote will pop on the top right of your cu
 Pull from GitHub and load the src folder unpacked on your Google Chrome Extension page.
 
 To access the options page, right click the extension icon and click options. The timer will also be automatically opened every time you start the extension.
+
+Purpose of project: Learn HTML, CSS, and JavaScript
