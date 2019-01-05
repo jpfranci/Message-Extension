@@ -90,10 +90,10 @@ function controlTimer(toCountdownTo, captions) {
 
 function getCaptions(isBlocked) {
     if (isBlocked) {
-        return ["Time Until Break: ", "Go take your well-deserved break ❤",
+        return ["Time Until Break: ", "Go take your well-deserved break",
             "Click this button again to show break timer"];
     } else {
-        return ["Time Until Break's Over: ", "You can do this! Go back to work!",
+        return ["Time Until Break's Over: ", "Time to go back to work!",
             "Click this button again to show block timer"];
     }
 }

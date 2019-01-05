@@ -241,8 +241,8 @@ function goToBreak() {
             notifications.create(CUTE_MESSAGE_NOTIFICATION_NAME, {
                 type: 'basic',
                 iconUrl: 'icons/heart.jpg',
-                title: "Great Work Babe",
-                message: "Take a break, I'm proud of you for being so productive",
+                title: "Time to take a break",
+                message: "Take a break, you deserve it",
                 silent: true
             });
             printAlarm(BREAK_ALARM_NAME);
