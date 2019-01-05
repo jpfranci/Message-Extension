@@ -1,4 +1,4 @@
-# Message-Extension
+# Productivity Chrome Extension
 With this chrome extension you can block websites that are distracting and set timers for length between breaks and the length of the break itself. 
 
 It also includes a timer, so you can keep track of the times between your breaks. 
