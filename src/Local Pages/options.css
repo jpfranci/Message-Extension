@@ -23,7 +23,6 @@ body {
      }
  }
 
-
 .navbar {
     background-image: linear-gradient(to right, white, #ffeec9);
     transition: opacity 0.5s ease;
@@ -257,7 +256,6 @@ input[type="text"]{
 
 .effect-1{
     border: 0; 
-    position: absolute;
     float: left;
     text-overflow: ellipsis;
     padding: 7px 0; 

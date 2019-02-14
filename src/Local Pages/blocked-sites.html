@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel = "stylesheet" href="options.css">
+<link rel = "stylesheet" href="../messageNotification.css"> 
+<link rel = "stylesheet" href="message-archive.css">
+<script src="../bootstrap/jquery-3.3.1.min.js"></script>
+<link href="https://fonts.googleapis.com/css?family=Francois+One|Ranga|Vollkorn" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Nunito|Open Sans" rel="stylesheet">
+</head>
+<body>
+    <h2><i>Blocked Sites</i></h2>
+
+    <div class = 'navbar'>
+        <a class = "active" href = "">Blocked Sites</a>
+        <a href = "options.html">Options</a>
+        <a href = "message-archive.html">Message Archive</a>
+        <a href = "blocked-sites.html">Blocked Sites</a>
+    </div>
+
+    <div class="flex-container">
+        <input class="effect-1" id="website-input" type="text" placeholder="Enter the website you want to block">
+        <button id="website-button" class="fancyButton"> Click here to change message frequency</button>
+    </div>
+
+    <button id="remove-button" class="fancyButton remove"> Click here to remove a selected website</button>
+
+    <div class="messageList flex">
+        <ol id = "messageListId">
+                <li class="li-message" id = "noBlock"><p>You have not blocked any sites yet</p></li>
+        </ol>
+    </div>
+</body>
+<script type="module" src="blocked-sites.js"></script>
+</html>

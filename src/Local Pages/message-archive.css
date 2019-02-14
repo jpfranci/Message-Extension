@@ -11,13 +11,41 @@
  }
 
 .messageList {
+    display: inline-block;
     width: 60%;
-    margin: 10px;
-    position: absolute;
-    right: 19%;
-    top: 25%;
-    background-image: linear-gradient(to bottom, #fffff7, #ffd9b7);
+    margin-left: 20%;
+    margin-top: 20px;
     border-radius: 10px;
+}
+
+.flex-container {
+    display: flex;
+    position: relative;
+    flex-direction: column;
+    justify-content: space-evenly;
+    width: 30%;
+    margin-left: 35%;
+    align-content: space-evenly;
+}
+
+.fancyButton.remove {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    width: 15%;
+    height: 15%;
+}
+
+.li-message {
+    opacity: 0.7;
+}
+
+.li-message:hover {
+    opacity: 1;
+}
+
+.selected {
+    opacity: 1;
 }
 
 .archiveBody {
@@ -29,6 +57,7 @@
 ol {
     color: #000000;
     list-style-type: none;
+    
 }
 
 ol li {
@@ -36,6 +65,8 @@ ol li {
     font: bold italic 1.2em "Open Sans", sans-serif;
     margin-bottom: 10px;
     margin-top: 10px;
+    border: 0 solid silver;
+    border-width: 0 0 1px 0;
 }
 
 li p {
