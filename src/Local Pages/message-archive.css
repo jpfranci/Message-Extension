@@ -18,7 +18,8 @@
     width: 60%;
     margin-left: 20%;
     margin-top: 20px;
-    border-radius: 10px;
+    border-radius: 30px;
+    padding-bottom: 20px;
 }
 
 .flex-container {
@@ -41,6 +42,9 @@
 
 .li-message {
     opacity: 0.7;
+    background-image: linear-gradient(to right, white, #ffeec9);
+    padding: 20px;
+    border-radius: 20px;
 }
 
 .li-message:hover {
@@ -49,6 +53,7 @@
 
 .selected {
     opacity: 1;
+    background-image: linear-gradient(to right, white, #ad774b);
 }
 
 .archiveBody {

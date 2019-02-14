@@ -42,12 +42,16 @@ document.getElementById('website-button').addEventListener('click', () => {
         new URL(urlEntered);
         let tmp = document.createElement('a');
         tmp.href = urlEntered;
-        urlsToBlock.push("*://*." + tmp.hostname + "/*");
-        if (document.getElementById('noBlock')) {
-            document.getElementById('noBlock').remove();
+        if (!urlsToBlock.includes("*://*." + tmp.hostname + "/*")) {
+            urlsToBlock.push("*://*." + tmp.hostname + "/*");
+            if (document.getElementById('noBlock')) {
+                document.getElementById('noBlock').remove();
+            }
+            addEntry(tmp.hostname, false);
+            setBlockStorage();
+        } else {
+            alert("Error: Already have that site blocked");
         }
-        addEntry(tmp.hostname, false);
-        setBlockStorage();
     } catch(e) {
         console.log(e);
         alert('Not a valid website, please try again. Make sure you have http:// or https:// in there');
