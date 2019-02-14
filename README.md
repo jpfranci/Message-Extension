@@ -12,4 +12,4 @@ Pull from GitHub and load the src folder unpacked on your Google Chrome Extensio
 
 To access the options page, right click the extension icon and click options. The timer will also be automatically opened every time you start the extension.
 
-Purpose of project: Learn HTML, CSS, and JavaScript
+Purpose of project: Learn basics of HTML, CSS, and JavaScript without frameworks
