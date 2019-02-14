@@ -73,19 +73,6 @@ declarativeContent.onPageChanged.removeRules(undefined, function () {
     }]);
 });
 
-function getMessages() {
-    let oReq = new XMLHttpRequest();
-    oReq.onload = reqListener;
-    oReq.open("get", "messages.json", true);
-    oReq.send();
-}
-
-function reqListener(e) {
-    cuteMessageArray = JSON.parse(this.responseText);
-    cuteMessageLength = cuteMessageArray.length;
-    database.collection('Messages').doc('Test').set({messages: cuteMessageArray});
-}
-
 chrome.webRequest.onBeforeRequest.addListener(function (details) {
             if (isBlocked) {
                 runtime.sendMessage("starting counter");
