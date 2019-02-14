@@ -44,8 +44,20 @@ database.collection("Messages").doc("Test")
         console.log(cuteMessageArray);
 });
 
+function getMessagesFromDB() {
+    database.collection('Messages').doc('Test').get()
+        .then((doc) => {
+            if (doc.exists) {
+                cuteMessageArray = doc.data();
+                console.log("got data");
+            } else {
+                console.log("Database doesn't exist");
+            }
+        });
+}
+
 runtime.onInstalled.addListener(function(details) {
-    getMessages();
+    getMessagesFromDB();
     if(details.previousVersion == null && details.id == null) {
         storage.set({[PROGRAM_STATE]: false}, function () {
             console.log("success setting programState")
@@ -192,7 +204,7 @@ alarms.onAlarm.addListener(function (alarm) {
 
 function createNotificationCuteMessage() {
     if (cuteMessageArray.length == 0) {
-        getMessages();
+        getMessagesFromDB();
     }
     let indexToAccess = getRandomIndexToAccess(cuteMessageLength);
     console.log(indexToAccess);
