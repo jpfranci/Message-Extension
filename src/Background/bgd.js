@@ -12,16 +12,16 @@ const BLOCKED_ALARM_TIME_STORAGE = "blockedStorage";
 const BREAK_ALARM_TIME = "breakTime";
 const BREAK_ALARM_TIME_STORAGE = "breakStorage";
 const MESSAGE_ARCHIVE = "messageArchive";
+const BLOCKED_SITE_STORAGE = 'blockedSites';
 
 const declarativeContent = chrome.declarativeContent;
 const alarms = chrome.alarms;
 const storage = chrome.storage.sync;
 const runtime = chrome.runtime;
 const notifications = chrome.notifications;
-const urlsToBlock = ["https://*.facebook.com/*", "https://*.twitter.com/*",
-    "https://*.instagram.com/*", "https://*.pinterest.com/*", "https://*.reddit.com/*"];
 const cuteMessageIdentifier = "cute message:";
 
+let urlsToBlock = ["*://www.facebook.com/*"];
 let cuteMessageArray;
 let cuteMessageLength;
 let isBlocked;
@@ -31,33 +31,36 @@ export {alarms, storage, runtime, declarativeContent, getRandomIndexToAccess, BL
     BREAK_ALARM_TIME_STORAGE, BLOCKED_STATUS, BREAK_ALARM_TIME, cuteMessageIdentifier, MESSAGE_ARCHIVE};
 
 var config = {
-  
+
 };
 
 firebase.initializeApp(config);
 let database = firebase.firestore();
 
 // listen to firebase
-database.collection("Messages").doc("Test")
+database.collection("Messages").doc("Kim")
     .onSnapshot(function(doc) {
-        cuteMessageArray = doc.data();
+        cuteMessageArray = doc.data().messagesnew;
+        cuteMessageLength = cuteMessageArray.length;
         console.log(cuteMessageArray);
 });
 
+/*
 function getMessagesFromDB() {
     database.collection('Messages').doc('Test').get()
-        .then((doc) => {
+        .then(doc => {
             if (doc.exists) {
-                cuteMessageArray = doc.data();
+                cuteMessageArray = doc.data().messages;
                 console.log("got data");
+                console.log(cuteMessageArray);
             } else {
                 console.log("Database doesn't exist");
             }
         });
 }
+*/
 
 runtime.onInstalled.addListener(function(details) {
-    getMessagesFromDB();
     if(details.previousVersion == null && details.id == null) {
         storage.set({[PROGRAM_STATE]: false}, function () {
             console.log("success setting programState")
@@ -74,6 +77,10 @@ runtime.onInstalled.addListener(function(details) {
         storage.set({[MESSAGE_ARCHIVE]: []}, function() {
            console.log("successfully set message archive");
         });
+        storage.set({[BLOCKED_SITE_STORAGE]: ["*://www.facebook.com/*"]}, () => {
+            console.log('set blocked list');
+            urlsToBlock = ["*://www.facebook.com/*"];
+        })
     }
 });
 
@@ -85,15 +92,29 @@ declarativeContent.onPageChanged.removeRules(undefined, function () {
     }]);
 });
 
+
+/*
 chrome.webRequest.onBeforeRequest.addListener(function (details) {
             if (isBlocked) {
                 runtime.sendMessage("starting counter");
+                urlsToBlock = getUrlsToBlock();
                 return {redirectUrl: chrome.extension.getURL("../Local Pages/blocked.html")};
             }
         },
         {urls: urlsToBlock},
         ["blocking"]);
+*/
 
+chrome.tabs.onUpdated.addListener((tabId, changes, tab) => {
+    if (isBlocked && changes.url) {
+        chrome.tabs.query({url: urlsToBlock}, function (tabs) {
+            for (let tab of tabs) {
+                chrome.tabs.remove(tab.id);
+                chrome.tabs.create({url: chrome.extension.getURL("../Local Pages/blocked.html")});
+            }});
+    }
+    });
+        
 chrome.storage.onChanged.addListener(function(changes, namespace) {
     console.log(changes);
     if (changes.blocked) {
@@ -101,6 +122,12 @@ chrome.storage.onChanged.addListener(function(changes, namespace) {
         if (isBlocked) {
             removeTabsIfNeeded();
         }
+    } else if (changes[BLOCKED_SITE_STORAGE]) {
+        storage.get([BLOCKED_SITE_STORAGE], (changes) => {
+            if(changes[BLOCKED_SITE_STORAGE]) {
+                urlsToBlock = changes[BLOCKED_SITE_STORAGE];
+            }
+        });
     }
     changeAlarmsIfProgramStarted(changes);
 });
@@ -203,8 +230,9 @@ alarms.onAlarm.addListener(function (alarm) {
 });
 
 function createNotificationCuteMessage() {
+    
     if (cuteMessageArray.length == 0) {
-        getMessagesFromDB();
+        //getMessagesFromDB();
     }
     let indexToAccess = getRandomIndexToAccess(cuteMessageLength);
     console.log(indexToAccess);

@@ -1,8 +1,10 @@
 @import url('https://fonts.googleapis.com/css?family=Damion|Muli:400,600');
 
-body {
-    font-family: 'Quicksand', sans-serif;
-    font-weight: 300;
+.timer {
+    font-size: 15px;
+    color: white;
+    font-weight: 330;
+    font-family: 'Nunito', sans-serif;
 }
 
 h2:before {

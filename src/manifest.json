@@ -3,12 +3,11 @@
   "version": "1.0",
   "description": "Stay productive and motivated by timing your breaks and blocking websites. Also features motivational quotes",
   "options_page" : "Local Pages/options.html",
-  "permissions": ["tabs", "webRequest", "webRequestBlocking", "<all_urls>",
-    "notifications", "alarms", "activeTab", "declarativeContent", "http://*/*",
-    "https://*/*", "storage"],
+  "permissions": ["tabs", "<all_urls>",
+    "notifications", "alarms", "activeTab", "declarativeContent", "*://*/*", "storage"],
   "background": {
     "page": "Background/background.html",
-    "persistent": true
+    "persistent": false
   }, 
   "content_security_policy":"script-src 'self' https://www.gstatic.com/ https://*.firebaseio.com https://www.googleapis.com; object-src 'self'",
   "page_action": {
