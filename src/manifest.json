@@ -9,7 +9,8 @@
   "background": {
     "page": "Background/background.html",
     "persistent": true
-  },
+  }, 
+  "content_security_policy":"script-src 'self' https://www.gstatic.com/ https://*.firebaseio.com https://www.googleapis.com; object-src 'self'",
   "page_action": {
     "default_popup": "Background/popup.html"
   },
