@@ -30,6 +30,20 @@ let messageToAccess;
 export {alarms, storage, runtime, declarativeContent, getRandomIndexToAccess, BLOCKED_ALARM_TIME_STORAGE,
     BREAK_ALARM_TIME_STORAGE, BLOCKED_STATUS, BREAK_ALARM_TIME, cuteMessageIdentifier, MESSAGE_ARCHIVE};
 
+var config = {
+  
+};
+
+firebase.initializeApp(config);
+let database = firebase.firestore();
+
+// listen to firebase
+database.collection("Messages").doc("Test")
+    .onSnapshot(function(doc) {
+        cuteMessageArray = doc.data();
+        console.log(cuteMessageArray);
+});
+
 runtime.onInstalled.addListener(function(details) {
     getMessages();
     if(details.previousVersion == null && details.id == null) {
@@ -69,8 +83,7 @@ function getMessages() {
 function reqListener(e) {
     cuteMessageArray = JSON.parse(this.responseText);
     cuteMessageLength = cuteMessageArray.length;
-    console.log(cuteMessageLength);
-    console.log(cuteMessageArray);
+    database.collection('Messages').doc('Test').set({messages: cuteMessageArray});
 }
 
 chrome.webRequest.onBeforeRequest.addListener(function (details) {
@@ -191,6 +204,9 @@ alarms.onAlarm.addListener(function (alarm) {
 });
 
 function createNotificationCuteMessage() {
+    if (cuteMessageArray.length == 0) {
+        getMessages();
+    }
     let indexToAccess = getRandomIndexToAccess(cuteMessageLength);
     console.log(indexToAccess);
     messageToAccess = cuteMessageArray[indexToAccess];
