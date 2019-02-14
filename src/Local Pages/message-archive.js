@@ -11,6 +11,7 @@ function createListEntry(message) {
     span.innerText = numMessages.toString() + ".";
     newMessageEntry.appendChild(span);
     newMessageEntry.appendChild(messageText);
+    messageText.className = "message-archive";
     document.getElementById("messageListId").appendChild(newMessageEntry);
     numMessages++;
 }

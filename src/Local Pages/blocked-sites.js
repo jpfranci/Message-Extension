@@ -60,9 +60,12 @@ document.getElementById('website-button').addEventListener('click', () => {
 
 document.getElementById('remove-button').addEventListener('click', () => {
     let selectedEntries = document.getElementsByClassName('selected');
-    for (let i = 0; i < selectedEntries.length; i++) {
-        urlsToBlock.splice(urlsToBlock.indexOf("*://*." + selectedEntries[i].innerText + "/*"), 1);
-        selectedEntries[i].remove();
+    console.log(selectedEntries[0]);
+    console.log(selectedEntries[1]);
+    let length = selectedEntries.length;
+    for (let i = 0; i < length; i++) {
+        urlsToBlock.splice(urlsToBlock.indexOf("*://*." + selectedEntries[0].innerText + "/*"), 1);
+        selectedEntries[0].remove();
     }
     setBlockStorage();
 });

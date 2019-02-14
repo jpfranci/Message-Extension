@@ -155,8 +155,9 @@ img {
     background-image: linear-gradient(to right, #fdfbff, #fffde6);
     padding: 20px;
     border: 1px solid #d4d4d4 !important;
-    border-radius: 6px;
+    border-radius: 20px;
     height: 90%; 
+    margin-top: 5px;
     width: auto;
     font-family: 'Open Sans', sans-serif;
     font-size: 0.9em;
@@ -172,7 +173,6 @@ img {
     color: #000000 !important;
     background-image: linear-gradient(to right, white, #ff898c);
     transition: background-image 2s;
-
 }
 
 .blur {
@@ -204,6 +204,7 @@ h2:before {
 }
 h2 i {
     font-style: normal;
+    border-radius: 20px;
     background-image: linear-gradient(to right, white, #ffeec9);
     position: relative;
     padding: 10px;
@@ -258,13 +259,22 @@ input[type="text"]{
 .effect-1{
     border: 0; 
     float: left;
+    border-radius: 10px;
     text-overflow: ellipsis;
     padding: 7px 0; 
     border-bottom: 1px solid #ccc;
     opacity: 0.9;
     background-image: linear-gradient(to right, #fdfbff, #fffde6);
 }
-.effect-1 ~ .focus-border{position: absolute; bottom: 0; left: 0; width: 0; height: 2px; background-color: #70a6af; transition: 0.4s; }
+.effect-1 ~ .focus-border{
+    position: absolute; 
+    bottom: 0; 
+    left: 0; 
+    width: 0; 
+    height: 2px; 
+    background-color: #70a6af; 
+    transition: 0.4s; 
+}
 .effect-1:focus ~ .focus-border{
     width: 100%;
      transition: 0.4s;
