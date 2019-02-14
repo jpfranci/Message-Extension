@@ -31,7 +31,6 @@ export {alarms, storage, runtime, declarativeContent, getRandomIndexToAccess, BL
     BREAK_ALARM_TIME_STORAGE, BLOCKED_STATUS, BREAK_ALARM_TIME, cuteMessageIdentifier, MESSAGE_ARCHIVE};
 
 var config = {
-
 };
 
 firebase.initializeApp(config);
@@ -92,28 +91,17 @@ declarativeContent.onPageChanged.removeRules(undefined, function () {
     }]);
 });
 
-
-/*
-chrome.webRequest.onBeforeRequest.addListener(function (details) {
-            if (isBlocked) {
-                runtime.sendMessage("starting counter");
-                urlsToBlock = getUrlsToBlock();
-                return {redirectUrl: chrome.extension.getURL("../Local Pages/blocked.html")};
-            }
-        },
-        {urls: urlsToBlock},
-        ["blocking"]);
-*/
-
 chrome.tabs.onUpdated.addListener((tabId, changes, tab) => {
     if (isBlocked && changes.url) {
-        chrome.tabs.query({url: urlsToBlock}, function (tabs) {
-            for (let tab of tabs) {
-                chrome.tabs.remove(tab.id);
-                chrome.tabs.create({url: chrome.extension.getURL("../Local Pages/blocked.html")});
-            }});
+        storage.get([BLOCKED_SITE_STORAGE], (data) => {
+            chrome.tabs.query({url: data[BLOCKED_SITE_STORAGE]}, function (tabs) {
+                for (let tab of tabs) {
+                    chrome.tabs.remove(tab.id);
+                    chrome.tabs.create({url: chrome.extension.getURL("../Local Pages/blocked.html")});
+                }});
+        }); 
     }
-    });
+});
         
 chrome.storage.onChanged.addListener(function(changes, namespace) {
     console.log(changes);
