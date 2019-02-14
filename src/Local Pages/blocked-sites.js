@@ -50,7 +50,7 @@ document.getElementById('website-button').addEventListener('click', () => {
         setBlockStorage();
     } catch(e) {
         console.log(e);
-        alert('not a valid website, please try again');
+        alert('Not a valid website, please try again. Make sure you have http:// or https:// in there');
     }
 });
 
