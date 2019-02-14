@@ -190,7 +190,8 @@ h2 {
     font-size: 35px;
     text-align: center;
     position: relative;
-    margin: 80px;
+    margin-top: 80px;
+    margin-bottom: 50px;
 }
 h2:before {
     position: absolute;
