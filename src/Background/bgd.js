@@ -21,7 +21,7 @@ const runtime = chrome.runtime;
 const notifications = chrome.notifications;
 const cuteMessageIdentifier = "cute message:";
 
-let urlsToBlock = ["*://www.facebook.com/*"];
+let urlsToBlock = [];
 let cuteMessageArray;
 let cuteMessageLength;
 let isBlocked;
@@ -31,6 +31,7 @@ export {alarms, storage, runtime, declarativeContent, getRandomIndexToAccess, BL
     BREAK_ALARM_TIME_STORAGE, BLOCKED_STATUS, BREAK_ALARM_TIME, cuteMessageIdentifier, MESSAGE_ARCHIVE};
 
 var config = {
+    
 };
 
 firebase.initializeApp(config);
@@ -43,21 +44,6 @@ database.collection("Messages").doc("Kim")
         cuteMessageLength = cuteMessageArray.length;
         console.log(cuteMessageArray);
 });
-
-/*
-function getMessagesFromDB() {
-    database.collection('Messages').doc('Test').get()
-        .then(doc => {
-            if (doc.exists) {
-                cuteMessageArray = doc.data().messages;
-                console.log("got data");
-                console.log(cuteMessageArray);
-            } else {
-                console.log("Database doesn't exist");
-            }
-        });
-}
-*/
 
 runtime.onInstalled.addListener(function(details) {
     if(details.previousVersion == null && details.id == null) {
@@ -94,11 +80,13 @@ declarativeContent.onPageChanged.removeRules(undefined, function () {
 chrome.tabs.onUpdated.addListener((tabId, changes, tab) => {
     if (isBlocked && changes.url) {
         storage.get([BLOCKED_SITE_STORAGE], (data) => {
-            chrome.tabs.query({url: data[BLOCKED_SITE_STORAGE]}, function (tabs) {
-                for (let tab of tabs) {
-                    chrome.tabs.remove(tab.id);
-                    chrome.tabs.create({url: chrome.extension.getURL("../Local Pages/blocked.html")});
-                }});
+            if (data[BLOCKED_SITE_STORAGE].length > 0) {
+                chrome.tabs.query({highlighted: true, url: data[BLOCKED_SITE_STORAGE]}, (tabs) => {
+                    tabs.forEach((tab) =>{
+                        chrome.tabs.update({url: chrome.extension.getURL("../Local Pages/blocked.html")});
+                    });
+                });
+            }
         }); 
     }
 });
@@ -146,10 +134,12 @@ function tryToRemoveTabs() {
 
     setTimeout(function () {
         notifications.clear('cuteMessage');
-        chrome.tabs.query({url: urlsToBlock}, function (tabs) {
-            for (let tab of tabs) {
-                chrome.tabs.remove(tab.id);
-            }});
+        if (urlsToBlock.length > 0) {
+            chrome.tabs.query({url: urlsToBlock}, (tabs) => {
+                for (let tab of tabs) {
+                    chrome.tabs.remove(tab.id);
+                }});
+        }
     }, 5000);
 }
 

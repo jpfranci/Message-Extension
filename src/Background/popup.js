@@ -52,9 +52,7 @@ function showClickAgainMessageIfNeeded(captions, button) {
 
 function controlTimer(toCountdownTo, captions, button) {
     let timerInterval = setInterval(function () {
-
         chrome.storage.onChanged.addListener(function (changes, namespace) {
-            console.log(changes);
             if (changes[BLOCKED_ALARM_TIME_STORAGE]) {
                 toCountdownTo = new Date(changes[BLOCKED_ALARM_TIME_STORAGE].newValue);
             } else if (changes[BREAK_ALARM_TIME_STORAGE]) {
