@@ -53,10 +53,11 @@ h2 i {
 
 .fancyButton:hover {
     color: #ffffff !important;
-    opacity: 1;
     background-image: linear-gradient(to bottom right, #eabec9, #c91474);
-    transition: opacity 2s;
+}
 
+.fancyButton:active {
+    box-shadow:1px 1px 1px black;
 }
 
 .button {
