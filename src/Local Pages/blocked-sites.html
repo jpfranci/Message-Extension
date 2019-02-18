@@ -12,10 +12,10 @@
     <h2><i>Blocked Sites</i></h2>
 
     <div class = 'navbar'>
-        <a class = "active" href = "">Blocked Sites</a>
         <a href = "options.html">Options</a>
         <a href = "blocked.html">Timer</a>
         <a href = "message-archive.html">Message Archive</a>
+        <a class = "active" href = "">Blocked Sites</a>
     </div>
 
     <div class="flex-container">
@@ -27,9 +27,11 @@
 
     <div class="messageList flex">
         <h1>List Of Sites</h1>
-        <ol id = "messageListId">
-                <li class="li-message" id = "noBlock"><p>You have not blocked any sites yet</p></li>
-        </ol>
+        <div class = "dim-hover">
+            <ol id = "messageListId">
+                    <li class="li-message" id = "noBlock"><p>You have not blocked any sites yet</p></li>
+            </ol>
+        </div>
     </div>
 </body>
 <script type="module" src="blocked-sites.js"></script>

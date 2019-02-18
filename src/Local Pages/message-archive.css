@@ -19,17 +19,22 @@
     margin-left: 20%;
     margin-top: 20px;
     border-radius: 30px;
-    padding-bottom: 20px;
+    padding-bottom: 10px;
 }
+
+.dim-hover:hover ol li:not(:hover) {
+    opacity: 0.7;
+}   
+
 
 .flex-container {
     display: flex;
     position: relative;
     flex-direction: column;
-    justify-content: space-evenly;
+    justify-content: center;
     width: 30%;
     margin-left: 35%;
-    align-content: space-evenly;
+    align-content: center;
 }
 
 .fancyButton.remove {
@@ -41,14 +46,11 @@
 }
 
 .li-message {
-    opacity: 0.7;
+    opacity: 1;
     background-image: linear-gradient(to right, white, #ffeec9);
     padding: 20px;
     border-radius: 20px;
-}
-
-.li-message:hover {
-    opacity: 1;
+    transition: opacity 0.4s;
 }
 
 .selected {
@@ -79,14 +81,27 @@ ol li {
     position: relative;
     font: bold italic 1.2em "Open Sans", sans-serif; 
     margin-top: 10px;
+    transform: perspective(1px) translateZ(0);
+    box-shadow: 0 0 1px transparent;
+    transition-duration: 0.3s;
+    transition-property: box-shadow, transform;
+}
+
+
+ol li:not(:last-child) {
     border: 0 solid silver;
-    border-width: 0 0 1px 0;
+    border-width: 0 0 1.5px 0;
 }
 
 .message-archive {
-    background-image: linear-gradient(to right, white, #ffeec9);
     padding: 30px;
     border-radius: 20px;
+    background-image: linear-gradient(to right, white, #ffeec9);   
+}
+
+ol li:hover, ol li:focus, ol li:active {
+    box-shadow: 1px 5px 5px -5px rgba(0, 0, 24, 0.5);
+    transform: scale(1.05);
 }
 
 li p {

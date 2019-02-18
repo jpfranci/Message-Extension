@@ -31,6 +31,9 @@ body {
     top: 0%;
     width: 100%;
     opacity: 0.05;
+    z-index: 300;
+    display: flex;
+    justify-content: center;
 }
 
 .top-option-container {
@@ -74,7 +77,6 @@ body {
 }
 
 .navbar a.active {
-    margin-left: 27%;
     background-image: linear-gradient(to right, white, #ffc4cd);
     color: #000000;
     opacity: 0.8;
@@ -91,6 +93,8 @@ img {
     position:fixed;
     width: 25%;
     bottom:0%;
+    object-fit: cover;
+    object-position: right top;
     right:38%;
 }
 
@@ -154,12 +158,13 @@ img {
 .fancyButton {
     background-image: linear-gradient(to right, #fdfbff, #fffde6);
     padding: 20px;
+    font-family: 'Nunito', sans-serif;
     border: 1px solid #d4d4d4 !important;
     border-radius: 20px;
     height: 90%; 
     margin-top: 5px;
     width: auto;
-    font-family: 'Open Sans', sans-serif;
+    transition: background-image 2s;
     font-size: 0.9em;
 }
 
@@ -172,7 +177,10 @@ img {
 .fancyButton:hover {
     color: #000000 !important;
     background-image: linear-gradient(to right, white, #ff898c);
-    transition: background-image 2s;
+}
+
+.fancyButton:active {
+    box-shadow:1px 1px 1px black;
 }
 
 .blur {
@@ -253,7 +261,7 @@ input[type="text"]{
     color: #333; 
     width: 100%; 
     box-sizing: border-box; 
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
 }
 
 .effect-1{
