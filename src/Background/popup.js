@@ -6,8 +6,10 @@ let introMessageArray = ["Let's get to business", "Believe in yourself", "You ca
 let timer = document.getElementById("timer");
 let timeFromNow;
 
-import {storage, getRandomIndexToAccess, runtime, BLOCKED_STATUS, BLOCKED_ALARM_TIME_STORAGE, BREAK_ALARM_TIME_STORAGE} from "./bgd.js";
+import {storage, getRandomIndexToAccess, runtime, 
+    BLOCKED_STATUS, BLOCKED_ALARM_TIME_STORAGE, BREAK_ALARM_TIME_STORAGE} from "./bgd.js";
 export {PROGRAM_START_MESSAGE, PROGRAM_END_MESSAGE, PROGRAM_STATE};
+
 
 startTimer(timer);
 
@@ -87,6 +89,7 @@ function getCaptions(isBlocked) {
     }
 }
 
+
 // EFFECTS: gets the introMessage array from chrome storage and sets the user greeting
 // as a random element within introMessage
 function setGreeting() {
@@ -128,6 +131,8 @@ function setButtonAndProgramState(data) {
         })
     });
 }
+
+
 
 function createTimerTabIfNeeded() {
     chrome.tabs.query({url: chrome.extension.getURL("../Local Pages/blocked.html")}, function (tabs) {

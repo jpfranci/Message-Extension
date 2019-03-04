@@ -1,9 +1,11 @@
-import { storage, BLOCKED_ALARM_TIME_STORAGE, BLOCKED_STATUS, BREAK_ALARM_TIME_STORAGE, cuteMessageIdentifier } from "../Background/bgd.js";
+import { storage, BLOCKED_ALARM_TIME_STORAGE, BLOCKED_STATUS, BREAK_ALARM_TIME_STORAGE, messageIdentifier } from "../Background/bgd.js";
 import { getImageToUse, showNotification } from "./options.js";
 import { PROGRAM_STATE } from "../Background/popup.js";
 
 let timeFromNow;
 let button = document.getElementById("demo");
+
+export {startTimer};
 
 if (document.getElementById("lol")) {
     document.getElementById("lol").src = getImageToUse();
@@ -23,10 +25,10 @@ function startTimer(timer) {
 
 
 chrome.runtime.onMessage.addListener(function (message) {
-    let messages = message.split(cuteMessageIdentifier);
+    let messages = message.split(messageIdentifier);
 
     if (messages.length > 1) {
-        showNotification(messages[1], document);
+        showNotification(messages[1]).bind(this);
     }
 });
 

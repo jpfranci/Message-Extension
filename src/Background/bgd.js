@@ -1,16 +1,21 @@
 import {PROGRAM_END_MESSAGE, PROGRAM_START_MESSAGE, PROGRAM_STATE} from "./popup.js";
+import {config} from './firebase-config.js';
 
 const DEFAULT_MESSAGE_FREQUENCY = 15;
 const DEFAULT_BLOCKED_TIME = 25;
 const DEFAULT_BREAK_TIME = 7;
-const CUTE_MESSAGE_ALARM_NAME = "recurringMessages";
+
+const MESSAGE_ALARM_NAME = "recurringMessages";
+const MESSAGE_NOTIFICATION_NAME = "inspiring message";
+
 const BLOCKED_ALARM_NAME = "blockedAlarm";
-const CUTE_MESSAGE_NOTIFICATION_NAME = "cute message";
-const BREAK_ALARM_NAME = "breakTime";
 const BLOCKED_STATUS = "blocked";
 const BLOCKED_ALARM_TIME_STORAGE = "blockedStorage";
+
+const BREAK_ALARM_NAME = "breakTime";
 const BREAK_ALARM_TIME = "breakTime";
 const BREAK_ALARM_TIME_STORAGE = "breakStorage";
+
 const MESSAGE_ARCHIVE = "messageArchive";
 const BLOCKED_SITE_STORAGE = 'blockedSites';
 
@@ -19,30 +24,27 @@ const alarms = chrome.alarms;
 const storage = chrome.storage.sync;
 const runtime = chrome.runtime;
 const notifications = chrome.notifications;
-const cuteMessageIdentifier = "cute message:";
+const messageIdentifier = "message:";
 
 let urlsToBlock = [];
-let cuteMessageArray;
-let cuteMessageLength;
+let notificationMessages;
+let notificationMessageLength;
+let injectedTabs = [];
 let isBlocked;
 let messageToAccess;
 
 export {alarms, storage, runtime, declarativeContent, getRandomIndexToAccess, BLOCKED_ALARM_TIME_STORAGE,
-    BREAK_ALARM_TIME_STORAGE, BLOCKED_STATUS, BREAK_ALARM_TIME, cuteMessageIdentifier, MESSAGE_ARCHIVE};
-
-var config = {
-    
-};
+    BREAK_ALARM_TIME_STORAGE, BLOCKED_STATUS, BREAK_ALARM_TIME, messageIdentifier, MESSAGE_ARCHIVE};
 
 firebase.initializeApp(config);
 let database = firebase.firestore();
 
-// listen to firebase
-database.collection("Messages").doc("Kim")
+// listen to firebase and get anything new
+database.collection("Messages").doc("Test")
     .onSnapshot(function(doc) {
-        cuteMessageArray = doc.data().messagesnew;
-        cuteMessageLength = cuteMessageArray.length;
-        console.log(cuteMessageArray);
+        notificationMessages = doc.data().messages;
+        notificationMessageLength = notificationMessages.length;
+        console.log(notificationMessages);
 });
 
 runtime.onInstalled.addListener(function(details) {
@@ -113,7 +115,7 @@ function changeAlarmsIfProgramStarted(changes) {
     storage.get(PROGRAM_STATE, function (data) {
         if (data[PROGRAM_STATE]) {
             if (changes.messageFrequency) {
-                changeAlarmTime(changes.messageFrequency, CUTE_MESSAGE_ALARM_NAME);
+                changeAlarmTime(changes.messageFrequency, MESSAGE_ALARM_NAME);
             } else if (changes.blockedTime) {
                 changeAlarmTime(changes.blockedTime, BLOCKED_ALARM_NAME);
             } else if (changes.breakTime) {
@@ -124,7 +126,7 @@ function changeAlarmsIfProgramStarted(changes) {
 }
 
 function tryToRemoveTabs() {
-    notifications.create(CUTE_MESSAGE_NOTIFICATION_NAME, {
+    notifications.create(MESSAGE_NOTIFICATION_NAME, {
         type: 'basic',
         iconUrl: '../icons/heart.jpg',
         title: 'Warning',
@@ -133,7 +135,7 @@ function tryToRemoveTabs() {
     });
 
     setTimeout(function () {
-        notifications.clear('cuteMessage');
+        notifications.clear(MESSAGE_NOTIFICATION_NAME);
         if (urlsToBlock.length > 0) {
             chrome.tabs.query({url: urlsToBlock}, (tabs) => {
                 for (let tab of tabs) {
@@ -167,11 +169,11 @@ runtime.onMessage.addListener(function(message) {
 
 function setAlarmMessages(data) {
     let minBetweenMessages = data.messageFrequency;
-    alarms.create(CUTE_MESSAGE_ALARM_NAME, {
+    alarms.create(MESSAGE_ALARM_NAME, {
         delayInMinutes: minBetweenMessages,
         periodInMinutes: minBetweenMessages
     });
-    printAlarm(CUTE_MESSAGE_ALARM_NAME);
+    printAlarm(MESSAGE_ALARM_NAME);
 }
 
 function setAlarmBlockTime(data) {
@@ -195,8 +197,8 @@ alarms.onAlarm.addListener(function (alarm) {
     let name = alarm.name;
 
     switch(name) {
-        case CUTE_MESSAGE_ALARM_NAME:
-            createNotificationCuteMessage();
+        case MESSAGE_ALARM_NAME:
+            createMessageNotification();
             break;
         case BLOCKED_ALARM_NAME:
             goToBreak();
@@ -207,18 +209,11 @@ alarms.onAlarm.addListener(function (alarm) {
     }
 });
 
-function createNotificationCuteMessage() {
-    
-    if (cuteMessageArray.length == 0) {
-        //getMessagesFromDB();
-    }
-    let indexToAccess = getRandomIndexToAccess(cuteMessageLength);
-    console.log(indexToAccess);
-    messageToAccess = cuteMessageArray[indexToAccess];
-    console.log("creating notification");
-    runtime.sendMessage("creating message:"+messageToAccess);
+function createMessageNotification() {
+    messageToAccess = notificationMessages[getRandomIndexToAccess(notificationMessageLength)];
+    console.log(messageToAccess);
 
-    notifications.create(CUTE_MESSAGE_NOTIFICATION_NAME, {
+    notifications.create(MESSAGE_NOTIFICATION_NAME, {
         type: 'basic',
         iconUrl: '../icons/heart.jpg',
         title: 'A message for you',
@@ -227,27 +222,29 @@ function createNotificationCuteMessage() {
         requireInteraction: true
     });
     chrome.tabs.query({active: true, url: ["*://*/*"]}, function(tabs) {
-        if (tabs.length > 0) {
+        if (tabs.length > 0 && !injectedTabs.includes(tabs[0].id)) {
+            console.log("creating notification");
+            injectedTabs.push(tabs[0].id);
             chrome.tabs.executeScript(tabs[0].id, {file: 'messageNotification.js'}, function () {
-                console.log('injected js');
                 chrome.tabs.insertCSS(tabs[0].id, {file: "messageNotification.css"}, function () {
-                    console.log('injected css');
                     chrome.tabs.sendMessage(tabs[0].id, messageToAccess);
                 });
             });
+        } else if (tabs.length > 0) {
+            chrome.tabs.sendMessage(tabs[0].id, messageToAccess);
         } else {
-            runtime.sendMessage(cuteMessageIdentifier + messageToAccess);
+            runtime.sendMessage(messageIdentifier + messageToAccess);
         }
-    });
 
-    storage.get(MESSAGE_ARCHIVE, function(messages) {
-        let messageArray = messages[MESSAGE_ARCHIVE];
-
-        if(!messageArray.includes(messageToAccess)) {
-            messageArray.push(messageToAccess);
-            console.log(messageArray);
-            storage.set({[MESSAGE_ARCHIVE]: messageArray});
-        }
+        storage.get(MESSAGE_ARCHIVE, function(messages) {
+            let messageArray = messages[MESSAGE_ARCHIVE];
+    
+            if(!messageArray.includes(messageToAccess)) {
+                messageArray.push(messageToAccess);
+                console.log(messageArray);
+                storage.set({[MESSAGE_ARCHIVE]: messageArray});
+            }
+        });
     });
 }
 
@@ -259,7 +256,7 @@ function goToBreak() {
                 delayInMinutes: minToGoBreakUntil,
             });
             setTimeStorageOfAlarm(BREAK_ALARM_TIME_STORAGE, minToGoBreakUntil);
-            notifications.create(CUTE_MESSAGE_NOTIFICATION_NAME, {
+            notifications.create(MESSAGE_NOTIFICATION_NAME, {
                 type: 'basic',
                 iconUrl: 'icons/heart.jpg',
                 title: "Time to take a break",
@@ -290,8 +287,8 @@ function getAlarmData(alarm, oldTime, newTime) {
     let name = alarm.name;
     let whenAlarmWillRingMs = alarm.scheduledTime;
 
-    if (name === CUTE_MESSAGE_ALARM_NAME || (name === BLOCKED_ALARM_NAME && isBlocked)
-    || (name === BREAK_ALARM_NAME && !isBlocked)) {
+    if (name === MESSAGE_ALARM_NAME || (name === BLOCKED_ALARM_NAME && isBlocked) || 
+        (name === BREAK_ALARM_NAME && !isBlocked)) {
         modifyAlarm(newTime, whenAlarmWillRingMs, oldTime, name);
     }
 }
@@ -319,7 +316,7 @@ function createModifiedAlarm(timeToSchedule, timeWithMinuteAdded, name, newTimeM
 
 function createAlarm(name, timeToSchedule, newTimeInMin) {
     switch(name) {
-        case CUTE_MESSAGE_ALARM_NAME:
+        case MESSAGE_ALARM_NAME:
             alarms.create(name, {
                 when: timeToSchedule,
                 periodInMinutes: newTimeInMin

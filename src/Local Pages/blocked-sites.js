@@ -1,4 +1,4 @@
-let urlsToBlock;
+let urlsToBlock = [];
 const BLOCKED_SITE_STORAGE = 'blockedSites';
 
 let listOfSites = document.getElementById("messageListId");

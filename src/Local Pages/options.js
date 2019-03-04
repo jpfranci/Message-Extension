@@ -1,4 +1,4 @@
-import {storage, getRandomIndexToAccess, BREAK_ALARM_TIME, cuteMessageIdentifier} from "../Background/bgd.js";
+import {storage, getRandomIndexToAccess, BREAK_ALARM_TIME, messageIdentifier} from "../Background/bgd.js";
 
 let images = ["../images/IMG_8622.jpg","../images/IMG_8624.jpg","../images/IMG_8630.jpg","../images/IMG_8640.jpg","../images/IMG_8648.jpg","../images/IMG_8664.jpg","../images/IMG_8683.jpg","../images/IMG_8685.jpg","../images/IMG_8710.jpg","../images/IMG_8796.jpg","../images/IMG_8808.jpg","../images/IMG_8809.jpg","../images/IMG_8811.jpg","../images/IMG_8814.jpg","../images/lol.jpeg","../images/lol2.jpeg","../images/lol3.jpg","../images/lol4.jpeg"];
 let lengthImages = images.length;
@@ -13,12 +13,14 @@ export {getImageToUse, showNotification};
 // Listens for a message and creates a notification box on top right of tab if
 // message is a periodic one
 chrome.runtime.onMessage.addListener(function(message) {
-    displayNotificationBoxIfPeriodicMessage(message);
+    if (message.includes(messageIdentifier)) {
+        displayNotificationBoxIfPeriodicMessage(message);
+    }
 });
 
 // Checks if message is a periodic message and creates notification box on top right of tab
 function displayNotificationBoxIfPeriodicMessage(message) {
-    let messages = message.split(cuteMessageIdentifier);
+    let messages = message.split(messageIdentifier);
 
     if (messages.length > 1) {
         showNotification(messages[1], document);
