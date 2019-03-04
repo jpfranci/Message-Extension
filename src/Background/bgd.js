@@ -1,5 +1,6 @@
 import {PROGRAM_END_MESSAGE, PROGRAM_START_MESSAGE, PROGRAM_STATE} from "./popup.js";
 import {config} from './firebase-config.js';
+import {messages} from './default-messages.js';
 
 const DEFAULT_MESSAGE_FREQUENCY = 15;
 const DEFAULT_BLOCKED_TIME = 25;
@@ -36,16 +37,23 @@ let messageToAccess;
 export {alarms, storage, runtime, declarativeContent, getRandomIndexToAccess, BLOCKED_ALARM_TIME_STORAGE,
     BREAK_ALARM_TIME_STORAGE, BLOCKED_STATUS, BREAK_ALARM_TIME, messageIdentifier, MESSAGE_ARCHIVE};
 
-firebase.initializeApp(config);
-let database = firebase.firestore();
+// import from firebase if it exists otherwise use default messages
+try {
+    firebase.initializeApp(config);
+    let database = firebase.firestore();
+     // listen to firebase and get anything new
+     database.collection("Messages").doc("Test")
+     .onSnapshot(function(doc) {
+         notificationMessages = doc.data().messages;
+         notificationMessageLength = notificationMessages.length;
+         console.log(notificationMessages);
+     });
+} catch(error) {
+    notificationMessages = messages;
+    notificationMessageLength = messages.length;
+    console.log(notificationMessages);
+}
 
-// listen to firebase and get anything new
-database.collection("Messages").doc("Test")
-    .onSnapshot(function(doc) {
-        notificationMessages = doc.data().messages;
-        notificationMessageLength = notificationMessages.length;
-        console.log(notificationMessages);
-});
 
 runtime.onInstalled.addListener(function(details) {
     if(details.previousVersion == null && details.id == null) {
