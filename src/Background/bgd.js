@@ -54,31 +54,24 @@ try {
     console.log(notificationMessages);
 }
 
-
-runtime.onInstalled.addListener(function(details) {
-    if(details.previousVersion == null && details.id == null) {
-        storage.set({[PROGRAM_STATE]: false}, function () {
-            console.log("success setting programState")
-        });
-        storage.set({'messageFrequency': DEFAULT_MESSAGE_FREQUENCY}, function () {
-            console.log("success setting messageFrequency");
-        });
-        storage.set({'blockedTime': DEFAULT_BLOCKED_TIME}, function () {
-            console.log("success setting blockedTime");
-        });
-        storage.set({[BREAK_ALARM_TIME]: DEFAULT_BREAK_TIME}, function() {
-            console.log("successfully set default break time");
-        });
-        storage.set({[MESSAGE_ARCHIVE]: []}, function() {
-           console.log("successfully set message archive");
-        });
+/* Sets state of this chrome extension on install.
+*  Program state is initially false, options for alarm frequencies are set to default values,
+*  the message archive is set to an empty array and facebook is initially set to be blocked
+*/
+runtime.onInstalled.addListener(function(details) {   
+    if(!details.previousVersion && !details.id) {
+        storage.set({[PROGRAM_STATE]: false});
+        storage.set({'messageFrequency': DEFAULT_MESSAGE_FREQUENCY});
+        storage.set({'blockedTime': DEFAULT_BLOCKED_TIME});
+        storage.set({[BREAK_ALARM_TIME]: DEFAULT_BREAK_TIME});
+        storage.set({[MESSAGE_ARCHIVE]: []});
         storage.set({[BLOCKED_SITE_STORAGE]: ["*://www.facebook.com/*"]}, () => {
-            console.log('set blocked list');
             urlsToBlock = ["*://www.facebook.com/*"];
         })
     }
 });
 
+// shows the popup on extension button click
 declarativeContent.onPageChanged.removeRules(undefined, function () {
     declarativeContent.onPageChanged.addRules([{
         conditions: [new declarativeContent.PageStateMatcher()
@@ -87,6 +80,7 @@ declarativeContent.onPageChanged.removeRules(undefined, function () {
     }]);
 });
 
+// Blocks a site when if it matches any of the sites on the user's whitelist
 chrome.tabs.onUpdated.addListener((tabId, changes, tab) => {
     if (isBlocked && changes.url) {
         storage.get([BLOCKED_SITE_STORAGE], (data) => {
@@ -100,11 +94,14 @@ chrome.tabs.onUpdated.addListener((tabId, changes, tab) => {
         }); 
     }
 });
-        
+
+/* Removes whitelisted urls from tabs that are blocked when program is turned on or 
+*  updates the urlsToBlock(list of whitelisted sites) if it updated or
+*  changes the current alarms if any options are updated
+*/
 chrome.storage.onChanged.addListener(function(changes, namespace) {
-    console.log(changes);
-    if (changes.blocked) {
-        isBlocked = changes.blocked.newValue;
+    if (changes[BLOCKED_STATUS]) {
+        isBlocked = changes[BLOCKED_STATUS].newValue;
         if (isBlocked) {
             removeTabsIfNeeded();
         }
@@ -117,21 +114,6 @@ chrome.storage.onChanged.addListener(function(changes, namespace) {
     }
     changeAlarmsIfProgramStarted(changes);
 });
-
-
-function changeAlarmsIfProgramStarted(changes) {
-    storage.get(PROGRAM_STATE, function (data) {
-        if (data[PROGRAM_STATE]) {
-            if (changes.messageFrequency) {
-                changeAlarmTime(changes.messageFrequency, MESSAGE_ALARM_NAME);
-            } else if (changes.blockedTime) {
-                changeAlarmTime(changes.blockedTime, BLOCKED_ALARM_NAME);
-            } else if (changes.breakTime) {
-                changeAlarmTime(changes.breakTime, BREAK_ALARM_NAME);
-            }
-        }
-    });
-}
 
 function tryToRemoveTabs() {
     notifications.create(MESSAGE_NOTIFICATION_NAME, {
@@ -157,6 +139,20 @@ function removeTabsIfNeeded() {
     chrome.tabs.query({url: urlsToBlock}, function (tabs) {
         if (tabs.length > 0) {
             tryToRemoveTabs();
+        }
+    });
+}
+
+function changeAlarmsIfProgramStarted(changes) {
+    storage.get(PROGRAM_STATE, function (data) {
+        if (data[PROGRAM_STATE]) {
+            if (changes.messageFrequency) {
+                changeAlarmTime(changes.messageFrequency, MESSAGE_ALARM_NAME);
+            } else if (changes.blockedTime) {
+                changeAlarmTime(changes.blockedTime, BLOCKED_ALARM_NAME);
+            } else if (changes.breakTime) {
+                changeAlarmTime(changes.breakTime, BREAK_ALARM_NAME);
+            }
         }
     });
 }
@@ -192,9 +188,7 @@ function setAlarmBlockTime(data) {
     });
     printAlarm(BLOCKED_ALARM_NAME);
     setTimeStorageOfAlarm(BLOCKED_ALARM_TIME_STORAGE, minToBlockUntil);
-    storage.set({[BLOCKED_STATUS]: true}, function() {
-        console.log('successfully set the block');
-    });
+    storage.set({[BLOCKED_STATUS]: true});
 }
 
 function setTimeStorageOfAlarm(nameOfAlarmTimeInStorage, minToBlockUntil) {
@@ -259,13 +253,11 @@ function displayNotificationInCurrentTab(messageToAccess, onNoOpenTabs) {
             chrome.tabs.sendMessage(tabs[0].id, messageToAccess);
           // if no valid url then either sends message to chrome extension pages in case that is their 
           // active tab or calls onNoOpenTabs callback
+        } else if (onNoOpenTabs) {
+            onNoOpenTabs();
         } else {
-            if (onNoOpenTabs) {
-                onNoOpenTabs();
-            } else {
-                runtime.sendMessage(messageIdentifier + messageToAccess);
-            }
-        }
+            runtime.sendMessage(messageIdentifier + messageToAccess);
+         }
     });
 }
 
