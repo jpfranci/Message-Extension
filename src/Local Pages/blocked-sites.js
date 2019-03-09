@@ -44,7 +44,8 @@ document.getElementById('website-button').addEventListener('click', () => {
         tmp.href = urlEntered;
         // getting justDomainName for example sub.main.com becomes main.com
         let justDomainName = tmp.hostname.split(".");
-        if (justDomainName.length >= 2) {
+        const checked = document.getElementById("strict-check").checked;
+        if (justDomainName.length >= 2 && checked) {
             justDomainName = 
                 `${justDomainName[justDomainName.length - 2]}.${justDomainName[justDomainName.length - 1]}`;
         } else {

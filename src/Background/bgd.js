@@ -126,14 +126,20 @@ chrome.storage.onChanged.addListener(function(changes, namespace) {
    changeAlarmsIfProgramStarted(changes);
 });
 
-function tryToRemoveTabs() {
+function createDesktopNotification(messageToDisplay, title){
+    const header = title ? title : "A message for you";
     notifications.create(MESSAGE_NOTIFICATION_NAME, {
         type: 'basic',
         iconUrl: '../icons/heart.jpg',
-        title: 'Warning',
-        message: "Unproductive tabs closing in 5 seconds",
-        silent: true
+        title: header,
+        message: messageToDisplay,
+        silent: true,
+        requireInteraction: true
     });
+}
+
+function tryToRemoveTabs() {
+    createDesktopNotification("Unproductive tabs closing in 5 seconds", "Warning");
 
     setTimeout(function () {
         notifications.clear(MESSAGE_NOTIFICATION_NAME);
@@ -144,9 +150,7 @@ function tryToRemoveTabs() {
 function clearBlockedSites() {
     if (urlsToBlock.length > 0) {
         chrome.tabs.query({url: urlsToBlock}, (tabs) => {
-            tabs.forEach(
-                (tab) => { chrome.tabs.remove(tab.id) }
-            );
+            tabs.forEach(tab => chrome.tabs.remove(tab.id));
         });
     }
 }
@@ -236,15 +240,8 @@ alarms.onAlarm.addListener(function (alarm) {
 });
 
 function createMessageNotification(messageToAccess) {
-    displayNotificationInCurrentTab(messageToAccess, () => {
-        notifications.create(MESSAGE_NOTIFICATION_NAME, {
-            type: 'basic',
-            iconUrl: '../icons/heart.jpg',
-            title: 'A message for you',
-            message: messageToAccess,
-            silent: true,
-            requireInteraction: true
-        });
+    displayNotificationInCurrentTab(messageToAccess, () => { 
+        createDesktopNotification(messageToAccess);
     });
 
     storage.get(MESSAGE_ARCHIVE, function(messages) {
@@ -259,26 +256,33 @@ function createMessageNotification(messageToAccess) {
 // Displays messageToAccess in current tab
 // executes onNoOpenTabs if no valid url as well
 function displayNotificationInCurrentTab(messageToAccess, onNoOpenTabs) {
-    chrome.tabs.query({active: true, url: ["*://*/*"]}, function(tabs) {
-        // injects message notifying scripts and css to page if not already injected and sends the message
-        // to current tab to display
-        if (tabs.length > 0 && !injectedTabs.includes(tabs[0].id)) {
-            injectedTabs.push(tabs[0].id);
-            chrome.tabs.executeScript(tabs[0].id, {file: 'messageNotification.js'}, function () {
-                chrome.tabs.insertCSS(tabs[0].id, {file: "messageNotification.css"}, function () {
+    chrome.windows.getCurrent(window => {
+        // If the chrome window is not the active window then call the onNoOpenTabs callback
+        if (!window || !window.focused) {
+            onNoOpenTabs();
+        } 
+        
+        else {
+            const tabNotificationQuery = {currentWindow: true, highlighted: true, url: ["*://*/*"]};
+            chrome.tabs.query(tabNotificationQuery, function(tabs) {
+                /* injects message notifying scripts and css to page if not already injected 
+                * and sends the message to current tab to display */
+                if (tabs.length > 0 && !injectedTabs.includes(tabs[0].id)) {
+                    injectedTabs.push(tabs[0].id);
+                    chrome.tabs.executeScript(tabs[0].id, {file: 'messageNotification.js'}, function () {
+                        chrome.tabs.insertCSS(tabs[0].id, {file: "messageNotification.css"}, function () {
+                            chrome.tabs.sendMessage(tabs[0].id, messageToAccess);
+                        });
+                    });
+                // sends the message to the current tab to display  
+                } else if (tabs.length > 0) {
                     chrome.tabs.sendMessage(tabs[0].id, messageToAccess);
-                });
+                // if no valid url then sends message to local extension pages in case that it is their 
+                // active tab
+                } else {
+                    runtime.sendMessage(messageIdentifier + messageToAccess);
+                }
             });
-          // sends the message to the current tab to display  
-        } else if (tabs.length > 0) {
-            chrome.tabs.sendMessage(tabs[0].id, messageToAccess);
-          // if no valid url then either sends message to chrome extension pages in case that is their 
-          // active tab and calls onNoOpenTabs callback
-        } else {
-            if (onNoOpenTabs) {
-                onNoOpenTabs();
-            }
-            runtime.sendMessage(messageIdentifier + messageToAccess);
         }
     });
 }
@@ -292,13 +296,7 @@ function goToBreak() {
             });
             setTimeStorageOfAlarm(BREAK_ALARM_TIME_STORAGE, minToGoBreakUntil);
             displayNotificationInCurrentTab("Time to take a break", () => {
-                notifications.create(MESSAGE_NOTIFICATION_NAME, {
-                    type: 'basic',
-                    iconUrl: '../icons/heart.jpg',
-                    title: "Time to take a break",
-                    message: "Take a break, you deserve it",
-                    silent: true
-                });
+                createDesktopNotification("Time to take a break", "Keep up the good work!");
             });
             printAlarm(BREAK_ALARM_NAME);
         });
@@ -306,20 +304,26 @@ function goToBreak() {
 }
 
 function resetBlockAlarm() {
-    storage.set({[BLOCKED_STATUS]: true}, function () {
-        storage.get('blockedTime', setAlarmBlockTime);
+    const messageToDisplay = "Your break is ending in one minute. Please close all your work in blocked tabs";
+    displayNotificationInCurrentTab(messageToDisplay, () => {
+        createDesktopNotification(messageToDisplay, "Warning")
     });
+
+    setTimeout(() => {
+        storage.set({[BLOCKED_STATUS]: true}, () => {
+            storage.get('blockedTime', setAlarmBlockTime);
+        });
+    }, minToMillis(1));
 }
 
 function changeAlarmTime(timeOfAlarm, alarmName) {
     let oldTime = timeOfAlarm.oldValue;
     let newTime = timeOfAlarm.newValue;
-    alarms.clear(alarmName, () => {
-        alarms.get(alarmName, function(alarm) {
+    alarms.get(alarmName, function(alarm) {
+        if (alarm) {
             getAlarmData(alarm, oldTime, newTime);
-        });
-    })
-
+        }
+    });
 }
 
 function getAlarmData(alarm, oldTime, newTime) {
