@@ -33,7 +33,7 @@ chrome.storage.onChanged.addListener(function(changes, namespace) {
             document.getElementById("noMessages").remove();
         }
         isRemoved = true;
-        let newMessage = changes[MESSAGE_ARCHIVE].newValue.pop();
-        createListEntry(newMessage);
+        let newMessages = changes[MESSAGE_ARCHIVE].newValue;
+        createListEntry(newMessages[newMessages.length - 1]);
     }
 });

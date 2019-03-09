@@ -223,7 +223,9 @@ alarms.onAlarm.addListener(function (alarm) {
 
     switch(name) {
         case MESSAGE_ALARM_NAME:
-            createMessageNotification();
+            let randomIndex = getRandomIndexToAccess(notificationMessages.length);
+            messageToAccess = notificationMessages[randomIndex];
+            createMessageNotification(messageToAccess);
             break;
         case BLOCKED_ALARM_NAME:
             goToBreak();
@@ -234,9 +236,7 @@ alarms.onAlarm.addListener(function (alarm) {
     }
 });
 
-function createMessageNotification() {
-    let randomIndex = getRandomIndexToAccess(notificationMessages.length);
-    messageToAccess = notificationMessages[randomIndex];
+function createMessageNotification(messageToAccess) {
     displayNotificationInCurrentTab(messageToAccess, () => {
         notifications.create(MESSAGE_NOTIFICATION_NAME, {
             type: 'basic',
@@ -249,7 +249,8 @@ function createMessageNotification() {
     });
 
     // remove message from pool of notification messages
-    notificationMessages.splice(randomIndex, 1);
+    notificationMessages.splice(notificationMessages.indexOf(messageToAccess), 1);
+    console.log(notificationMessages);
     storage.get(MESSAGE_ARCHIVE, function(messages) {
         let messageArray = messages[MESSAGE_ARCHIVE];
         if(!messageArray.includes(messageToAccess)) {
