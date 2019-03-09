@@ -30,6 +30,9 @@ function displayNotificationBoxIfPeriodicMessage(message) {
 // Creates a notification box and injects necessary fonts for styling, removes the box when clicked or
 // automatically after TIMEOUT seconds
 function showNotification(message, document) {
+    if (document.getElementById("injectedScript")) {
+        document.getElementById("injectedScript").remove();
+    }
     let montserratFontFace = new FontFace('Montserrat', 'url(https://fonts.gstatic.com/s/' +
         'montserrat/v12/JTUSjIg1_i6t8kCHKm459Wlhyw.woff2)');
     document.fonts.add(montserratFontFace);

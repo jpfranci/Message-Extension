@@ -31,7 +31,6 @@ let urlsToBlock = [];
 let notificationMessages;
 let injectedTabs = [];
 let isBlocked;
-let messageToAccess;
 
 export {alarms, storage, runtime, declarativeContent, getRandomIndexToAccess, BLOCKED_ALARM_TIME_STORAGE,
     BREAK_ALARM_TIME_STORAGE, BLOCKED_STATUS, BREAK_ALARM_TIME, messageIdentifier, MESSAGE_ARCHIVE};
@@ -124,7 +123,7 @@ chrome.storage.onChanged.addListener(function(changes, namespace) {
             }
         });
     }
-    changeAlarmsIfProgramStarted(changes);
+   changeAlarmsIfProgramStarted(changes);
 });
 
 function tryToRemoveTabs() {
@@ -224,8 +223,8 @@ alarms.onAlarm.addListener(function (alarm) {
     switch(name) {
         case MESSAGE_ALARM_NAME:
             let randomIndex = getRandomIndexToAccess(notificationMessages.length);
-            messageToAccess = notificationMessages[randomIndex];
-            createMessageNotification(messageToAccess);
+            createMessageNotification(notificationMessages[randomIndex]);
+            notificationMessages.splice(randomIndex, 1);
             break;
         case BLOCKED_ALARM_NAME:
             goToBreak();
@@ -248,9 +247,6 @@ function createMessageNotification(messageToAccess) {
         });
     });
 
-    // remove message from pool of notification messages
-    notificationMessages.splice(notificationMessages.indexOf(messageToAccess), 1);
-    console.log(notificationMessages);
     storage.get(MESSAGE_ARCHIVE, function(messages) {
         let messageArray = messages[MESSAGE_ARCHIVE];
         if(!messageArray.includes(messageToAccess)) {
@@ -277,12 +273,13 @@ function displayNotificationInCurrentTab(messageToAccess, onNoOpenTabs) {
         } else if (tabs.length > 0) {
             chrome.tabs.sendMessage(tabs[0].id, messageToAccess);
           // if no valid url then either sends message to chrome extension pages in case that is their 
-          // active tab or calls onNoOpenTabs callback
-        } else if (onNoOpenTabs) {
-            onNoOpenTabs();
+          // active tab and calls onNoOpenTabs callback
         } else {
+            if (onNoOpenTabs) {
+                onNoOpenTabs();
+            }
             runtime.sendMessage(messageIdentifier + messageToAccess);
-         }
+        }
     });
 }
 
@@ -317,10 +314,12 @@ function resetBlockAlarm() {
 function changeAlarmTime(timeOfAlarm, alarmName) {
     let oldTime = timeOfAlarm.oldValue;
     let newTime = timeOfAlarm.newValue;
+    alarms.clear(alarmName, () => {
+        alarms.get(alarmName, function(alarm) {
+            getAlarmData(alarm, oldTime, newTime);
+        });
+    })
 
-    alarms.get(alarmName, function(alarm) {
-        getAlarmData(alarm, oldTime, newTime);
-    });
 }
 
 function getAlarmData(alarm, oldTime, newTime) {
