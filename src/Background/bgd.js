@@ -7,33 +7,50 @@ const DEFAULT_BLOCKED_TIME = 25;
 const DEFAULT_BREAK_TIME = 7;
 
 const MESSAGE_ALARM_NAME = "recurringMessages";
-const MESSAGE_NOTIFICATION_NAME = "inspiring message";
 
 const BLOCKED_ALARM_NAME = "blockedAlarm";
-const BLOCKED_STATUS = "blocked";
 const BLOCKED_ALARM_TIME_STORAGE = "blockedStorage";
 
 const BREAK_ALARM_NAME = "breakTime";
-const BREAK_ALARM_TIME = "breakTime";
 const BREAK_ALARM_TIME_STORAGE = "breakStorage";
 
+/* These are keys for local storage that represent the program state
+* BLOCKED_STATUS is the key for a boolean representing whether the user is currently blocked or not
+* MESSAGE_ARCHIVE is the key for an array of all of the messages that the user has encountered so far 
+* BLOCKED_SITE_STORAGE is the key an array of all of the user's whitelisted sites in regex
+* BREAK_ALARM_OPTION is the key for the current length of break time as entered by the user
+*/
+const BLOCKED_STATUS = "blocked";
 const MESSAGE_ARCHIVE = "messageArchive";
 const BLOCKED_SITE_STORAGE = 'blockedSites';
+const BREAK_ALARM_OPTION = "breakTime";
 
+
+// a bunch of chrome shortcuts
 const declarativeContent = chrome.declarativeContent;
 const alarms = chrome.alarms;
 const storage = chrome.storage.sync;
 const runtime = chrome.runtime;
 const notifications = chrome.notifications;
+
+// identifiers for notifications
+const MESSAGE_NOTIFICATION_NAME = "inspiring message";
 const messageIdentifier = "message:";
 
+/* These are global variables to help so there's no need to deal with local storage for everything
+* urlsToBlock are the user's whitelisted sites
+* notificationMessages are the pool of messages for motivational messages
+* injectedTabs is an array containing all of the chrome tabs in the current session that have 
+* been injected with the in browser notification box script
+* isBlocked is a boolean representing whether sites are blocked or not
+*/
 let urlsToBlock = [];
-let notificationMessages;
+let notificationMessages = [];
 let injectedTabs = [];
-let isBlocked;
+let isBlocked = false;
 
 export {alarms, storage, runtime, declarativeContent, getRandomIndexToAccess, BLOCKED_ALARM_TIME_STORAGE,
-    BREAK_ALARM_TIME_STORAGE, BLOCKED_STATUS, BREAK_ALARM_TIME, messageIdentifier, MESSAGE_ARCHIVE};
+    BREAK_ALARM_TIME_STORAGE, BLOCKED_STATUS, BREAK_ALARM_OPTION, messageIdentifier, MESSAGE_ARCHIVE};
 
 // import from firebase if it exists otherwise use default messages
 try {
@@ -69,7 +86,7 @@ runtime.onInstalled.addListener(function(details) {
         storage.set({[PROGRAM_STATE]: false});
         storage.set({'messageFrequency': DEFAULT_MESSAGE_FREQUENCY});
         storage.set({'blockedTime': DEFAULT_BLOCKED_TIME});
-        storage.set({[BREAK_ALARM_TIME]: DEFAULT_BREAK_TIME});
+        storage.set({[BREAK_ALARM_OPTION]: DEFAULT_BREAK_TIME});
         storage.set({[MESSAGE_ARCHIVE]: []});
         storage.set({[BLOCKED_SITE_STORAGE]: ["*://www.facebook.com/*"]}, () => {
             urlsToBlock = ["*://www.facebook.com/*"];
@@ -92,7 +109,7 @@ chrome.tabs.onUpdated.addListener((tabId, changes, tab) => {
         storage.get([BLOCKED_SITE_STORAGE], (data) => {
             if (data[BLOCKED_SITE_STORAGE].length > 0) {
                 chrome.tabs.query({highlighted: true, url: data[BLOCKED_SITE_STORAGE]}, (tabs) => {
-                    tabs.forEach((tab) =>{
+                    tabs.forEach(tab => {
                         chrome.tabs.update({url: chrome.extension.getURL("../Local Pages/blocked.html")});
                     });
                 });
@@ -192,6 +209,7 @@ runtime.onMessage.addListener(function(message) {
             break;
         case PROGRAM_END_MESSAGE:
             alarms.clearAll();
+            injectedTabs = [];
             storage.set({[BLOCKED_STATUS]: false});
             break;
     }
@@ -254,12 +272,12 @@ function createMessageNotification(messageToAccess) {
 }
 
 // Displays messageToAccess in current tab
-// executes onNoOpenTabs if no valid url as well
-function displayNotificationInCurrentTab(messageToAccess, onNoOpenTabs) {
+// executes onChromeNotFocused if the chrome window is not focused as well
+function displayNotificationInCurrentTab(messageToAccess, onChromeNotFocused) {
     chrome.windows.getCurrent(window => {
-        // If the chrome window is not the active window then call the onNoOpenTabs callback
+        // If the chrome window is not the active window then call the onChromeNotFocused callback
         if (!window || !window.focused) {
-            onNoOpenTabs();
+            onChromeNotFocused();
         } 
         
         else {
@@ -289,7 +307,7 @@ function displayNotificationInCurrentTab(messageToAccess, onNoOpenTabs) {
 
 function goToBreak() {
     storage.set({[BLOCKED_STATUS]: false}, function () {
-        storage.get(BREAK_ALARM_TIME, function(data) {
+        storage.get(BREAK_ALARM_OPTION, function(data) {
             let minToGoBreakUntil = data.breakTime;
             alarms.create(BREAK_ALARM_NAME, {
                 delayInMinutes: minToGoBreakUntil,

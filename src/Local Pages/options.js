@@ -1,4 +1,4 @@
-import {storage, getRandomIndexToAccess, BREAK_ALARM_TIME, messageIdentifier} from "../Background/bgd.js";
+import {storage, getRandomIndexToAccess, BREAK_ALARM_OPTION, messageIdentifier} from "../Background/bgd.js";
 
 let images = ["../images/IMG_8622.jpg","../images/IMG_8624.jpg","../images/IMG_8630.jpg","../images/IMG_8640.jpg","../images/IMG_8648.jpg","../images/IMG_8664.jpg","../images/IMG_8683.jpg","../images/IMG_8685.jpg","../images/IMG_8710.jpg","../images/IMG_8796.jpg","../images/IMG_8808.jpg","../images/IMG_8809.jpg","../images/IMG_8811.jpg","../images/IMG_8814.jpg","../images/lol.jpeg","../images/lol2.jpeg","../images/lol3.jpg","../images/lol4.jpeg"];
 let lengthImages = images.length;
@@ -87,7 +87,7 @@ function setLabelsToTime() {
         document.getElementById("cuteMessageLabel").innerHTML = 'Current Frequency Of Messages: ' +
             data.messageFrequency + ' min';
     });
-    storage.get(BREAK_ALARM_TIME, function(data) {
+    storage.get(BREAK_ALARM_OPTION, function(data) {
         document.getElementById("breakLabel").innerHTML = 'Current Break Time: ' + data.breakTime
             + ' min';
     });
@@ -130,7 +130,7 @@ function changeBreakTimeIfValid() {
                 + MAX_BREAK_TIME + "min (max time for break), smh";
             setTimeout(setLabelsToTime, 3000);
         } else {
-            setNewTimeAndChangeLabel(numMinutes, BREAK_ALARM_TIME, "breakLabel");
+            setNewTimeAndChangeLabel(numMinutes, BREAK_ALARM_OPTION, "breakLabel");
         }
     }
 }
