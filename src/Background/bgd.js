@@ -6,12 +6,7 @@ const DEFAULT_MESSAGE_FREQUENCY = 15;
 const DEFAULT_BLOCKED_TIME = 25;
 const DEFAULT_BREAK_TIME = 7;
 
-const MESSAGE_ALARM_NAME = "recurringMessages";
-
-const BLOCKED_ALARM_NAME = "blockedAlarm";
 const BLOCKED_ALARM_TIME_STORAGE = "blockedStorage";
-
-const BREAK_ALARM_NAME = "breakTime";
 const BREAK_ALARM_TIME_STORAGE = "breakStorage";
 
 /* These are keys for local storage that represent the program state
@@ -24,7 +19,6 @@ const BLOCKED_STATUS = "blocked";
 const MESSAGE_ARCHIVE = "messageArchive";
 const BLOCKED_SITE_STORAGE = 'blockedSites';
 const BREAK_ALARM_OPTION = "breakTime";
-
 
 // a bunch of chrome shortcuts
 const declarativeContent = chrome.declarativeContent;
@@ -49,8 +43,14 @@ let notificationMessages = [];
 let injectedTabs = [];
 let isBlocked = false;
 
-export {alarms, storage, runtime, declarativeContent, getRandomIndexToAccess, BLOCKED_ALARM_TIME_STORAGE,
-    BREAK_ALARM_TIME_STORAGE, BLOCKED_STATUS, BREAK_ALARM_OPTION, messageIdentifier, MESSAGE_ARCHIVE};
+export {
+    alarms, storage, runtime, 
+    declarativeContent, getRandomIndexToAccess, 
+    BLOCKED_ALARM_TIME_STORAGE, BREAK_ALARM_TIME_STORAGE, 
+    BLOCKED_STATUS, BREAK_ALARM_OPTION, messageIdentifier, MESSAGE_ARCHIVE,
+    getIsBlocked, displayNotificationInCurrentTab, createMessageNotification,
+    createDesktopNotification,
+};
 
 // import from firebase if it exists otherwise use default messages
 try {
@@ -91,6 +91,19 @@ runtime.onInstalled.addListener(function(details) {
         storage.set({[BLOCKED_SITE_STORAGE]: ["*://www.facebook.com/*"]}, () => {
             urlsToBlock = ["*://www.facebook.com/*"];
         })
+    }
+});
+
+function getIsBlocked() {
+    return isBlocked;
+}
+
+runtime.onMessage.addListener(function(message) {
+    switch(message) {
+        case PROGRAM_END_MESSAGE:
+            injectedTabs = [];
+            storage.set({[BLOCKED_STATUS]: false});
+            break;
     }
 });
 
@@ -140,7 +153,6 @@ chrome.storage.onChanged.addListener(function(changes, namespace) {
             }
         });
     }
-   changeAlarmsIfProgramStarted(changes);
 });
 
 function createDesktopNotification(messageToDisplay, title){
@@ -185,79 +197,9 @@ function removeTabsIfNeeded() {
     });
 }
 
-function changeAlarmsIfProgramStarted(changes) {
-    storage.get(PROGRAM_STATE, function (data) {
-        if (data[PROGRAM_STATE]) {
-            if (changes.messageFrequency) {
-                changeAlarmTime(changes.messageFrequency, MESSAGE_ALARM_NAME);
-            } else if (changes.blockedTime) {
-                changeAlarmTime(changes.blockedTime, BLOCKED_ALARM_NAME);
-            } else if (changes.breakTime) {
-                changeAlarmTime(changes.breakTime, BREAK_ALARM_NAME);
-            }
-        }
-    });
-}
-
-// Listens for when the program starts, which prompts program to start timers and when it ends 
-// which is when it deletes all alarms
-runtime.onMessage.addListener(function(message) {
-    switch(message) {
-        case PROGRAM_START_MESSAGE:
-            storage.get('messageFrequency', setAlarmMessages);
-            storage.get('blockedTime', setAlarmBlockTime);
-            break;
-        case PROGRAM_END_MESSAGE:
-            alarms.clearAll();
-            injectedTabs = [];
-            storage.set({[BLOCKED_STATUS]: false});
-            break;
-    }
-});
-
-function setAlarmMessages(data) {
-    let minBetweenMessages = data.messageFrequency;
-    alarms.create(MESSAGE_ALARM_NAME, {
-        delayInMinutes: minBetweenMessages,
-        periodInMinutes: minBetweenMessages
-    });
-    printAlarm(MESSAGE_ALARM_NAME);
-}
-
-function setAlarmBlockTime(data) {
-    let minToBlockUntil = data.blockedTime;
-    alarms.create(BLOCKED_ALARM_NAME, {
-        delayInMinutes: minToBlockUntil,
-    });
-    printAlarm(BLOCKED_ALARM_NAME);
-    setTimeStorageOfAlarm(BLOCKED_ALARM_TIME_STORAGE, minToBlockUntil);
-    storage.set({[BLOCKED_STATUS]: true});
-}
-
-function setTimeStorageOfAlarm(nameOfAlarmTimeInStorage, minToBlockUntil) {
-    storage.set({[nameOfAlarmTimeInStorage]: Date.now() + minToMillis(minToBlockUntil)});
-}
-
-alarms.onAlarm.addListener(function (alarm) {
-    console.log(alarm);
-    let name = alarm.name;
-
-    switch(name) {
-        case MESSAGE_ALARM_NAME:
-            let randomIndex = getRandomIndexToAccess(notificationMessages.length);
-            createMessageNotification(notificationMessages[randomIndex]);
-            notificationMessages.splice(randomIndex, 1);
-            break;
-        case BLOCKED_ALARM_NAME:
-            goToBreak();
-            break;
-        case BREAK_ALARM_NAME:
-            resetBlockAlarm();
-            break;
-    }
-});
-
-function createMessageNotification(messageToAccess) {
+function createMessageNotification() {
+    let randomIndex = getRandomIndexToAccess(notificationMessages.length);
+    let messageToAccess = notificationMessages[randomIndex];
     displayNotificationInCurrentTab(messageToAccess, () => { 
         createDesktopNotification(messageToAccess);
     });
@@ -269,6 +211,8 @@ function createMessageNotification(messageToAccess) {
             storage.set({[MESSAGE_ARCHIVE]: messageArray});
         }
     });
+
+    notificationMessages.splice(randomIndex, 1);
 }
 
 // Displays messageToAccess in current tab
@@ -303,108 +247,6 @@ function displayNotificationInCurrentTab(messageToAccess, onChromeNotFocused) {
             });
         }
     });
-}
-
-function goToBreak() {
-    storage.set({[BLOCKED_STATUS]: false}, function () {
-        storage.get(BREAK_ALARM_OPTION, function(data) {
-            let minToGoBreakUntil = data.breakTime;
-            alarms.create(BREAK_ALARM_NAME, {
-                delayInMinutes: minToGoBreakUntil,
-            });
-            setTimeStorageOfAlarm(BREAK_ALARM_TIME_STORAGE, minToGoBreakUntil);
-            displayNotificationInCurrentTab("Time to take a break", () => {
-                createDesktopNotification("Time to take a break", "Keep up the good work!");
-            });
-            printAlarm(BREAK_ALARM_NAME);
-        });
-    });
-}
-
-function resetBlockAlarm() {
-    const messageToDisplay = "Your break is ending in one minute. Please close all your work in blocked tabs";
-    displayNotificationInCurrentTab(messageToDisplay, () => {
-        createDesktopNotification(messageToDisplay, "Warning")
-    });
-
-    setTimeout(() => {
-        storage.set({[BLOCKED_STATUS]: true}, () => {
-            storage.get('blockedTime', setAlarmBlockTime);
-        });
-    }, minToMillis(1));
-}
-
-function changeAlarmTime(timeOfAlarm, alarmName) {
-    let oldTime = timeOfAlarm.oldValue;
-    let newTime = timeOfAlarm.newValue;
-    alarms.get(alarmName, function(alarm) {
-        if (alarm) {
-            getAlarmData(alarm, oldTime, newTime);
-        }
-    });
-}
-
-function getAlarmData(alarm, oldTime, newTime) {
-    let name = alarm.name;
-    let whenAlarmWillRingMs = alarm.scheduledTime;
-
-    if (name === MESSAGE_ALARM_NAME || (name === BLOCKED_ALARM_NAME && isBlocked) || 
-        (name === BREAK_ALARM_NAME && !isBlocked)) {
-        modifyAlarm(newTime, whenAlarmWillRingMs, oldTime, name);
-    }
-}
-
-function modifyAlarm(newTimeMin, whenAlarmWillRingMs, oldTime, name) {
-    let timeToSchedule;
-    let timeWithMinuteAdded = Date.now() + minToMillis(1);
-
-    timeToSchedule = whenAlarmWillRingMs - minToMillis(oldTime) + minToMillis(newTimeMin);
-    createModifiedAlarm(timeToSchedule, timeWithMinuteAdded, name, newTimeMin);
-}
-
-function createModifiedAlarm(timeToSchedule, timeWithMinuteAdded, name, newTimeMin) {
-    let timeDifference = (timeToSchedule - Date.now()) / 60000;
-
-    if (timeToSchedule >= timeWithMinuteAdded) {
-        createAlarm(name, timeToSchedule, newTimeMin);
-        console.log("changed alarm to " + timeDifference + "from now");
-    } else {
-        createAlarm(name, timeWithMinuteAdded, newTimeMin);
-        console.log("changed alarm to minute from now")
-    }
-    printAlarm(name);
-}
-
-function createAlarm(name, timeToSchedule, newTimeInMin) {
-    switch(name) {
-        case MESSAGE_ALARM_NAME:
-            alarms.create(name, {
-                when: timeToSchedule,
-                periodInMinutes: newTimeInMin
-            });
-            break;
-        case BLOCKED_ALARM_NAME:
-            changeAlarmNonRecurring(name, timeToSchedule, BLOCKED_ALARM_TIME_STORAGE);
-            break;
-        case BREAK_ALARM_NAME:
-            changeAlarmNonRecurring(name, timeToSchedule, BREAK_ALARM_TIME_STORAGE);
-            break;
-    }
-}
-
-function changeAlarmNonRecurring(name, timeToSchedule, storageName) {
-    alarms.create(name, {when: timeToSchedule});
-    storage.set({[storageName]: timeToSchedule});
-}
-
-function printAlarm(name) {
-    alarms.get(name, function (alarm) {
-        console.log(alarm);
-    });
-}
-
-function minToMillis(num) {
-    return num * 60 * 1000;
 }
 
 function getRandomIndexToAccess(length) {

@@ -4,7 +4,7 @@ let images = ["../images/IMG_8622.jpg","../images/IMG_8624.jpg","../images/IMG_8
 let lengthImages = images.length;
 
 const MIN_BLOCK_TIME = 10;
-const MIN_FREQUENCY_TIME = 10;
+const MIN_FREQUENCY_TIME = 5;
 const MAX_BREAK_TIME = 10;
 const TIMEOUT = 12000;
 
