@@ -161,6 +161,8 @@ function removeTabsIfNeeded() {
     });
 }
 
+// Listens for when the program starts, which prompts program to start timers and when it ends 
+// which is when it deletes all alarms
 runtime.onMessage.addListener(function(message) {
     switch(message) {
         case PROGRAM_START_MESSAGE:
@@ -169,7 +171,6 @@ runtime.onMessage.addListener(function(message) {
             break;
         case PROGRAM_END_MESSAGE:
             alarms.clearAll();
-            console.log("deleted alarm");
             storage.set({[BLOCKED_STATUS]: false});
             break;
     }
@@ -219,40 +220,52 @@ alarms.onAlarm.addListener(function (alarm) {
 
 function createMessageNotification() {
     messageToAccess = notificationMessages[getRandomIndexToAccess(notificationMessageLength)];
-    console.log(messageToAccess);
-
-    notifications.create(MESSAGE_NOTIFICATION_NAME, {
-        type: 'basic',
-        iconUrl: '../icons/heart.jpg',
-        title: 'A message for you',
-        message: messageToAccess,
-        silent: true,
-        requireInteraction: true
+    displayNotificationInCurrentTab(messageToAccess, () => {
+        notifications.create(MESSAGE_NOTIFICATION_NAME, {
+            type: 'basic',
+            iconUrl: '../icons/heart.jpg',
+            title: 'A message for you',
+            message: messageToAccess,
+            silent: true,
+            requireInteraction: true
+        });
     });
+
+    storage.get(MESSAGE_ARCHIVE, function(messages) {
+        let messageArray = messages[MESSAGE_ARCHIVE];
+
+        if(!messageArray.includes(messageToAccess)) {
+            messageArray.push(messageToAccess);
+            storage.set({[MESSAGE_ARCHIVE]: messageArray});
+        }
+    });
+}
+
+// Displays messageToAccess in current tab
+// executes onNoOpenTabs if no valid url as well
+function displayNotificationInCurrentTab(messageToAccess, onNoOpenTabs) {
     chrome.tabs.query({active: true, url: ["*://*/*"]}, function(tabs) {
+        // injects message notifying scripts and css to page if not already injected and sends the message
+        // to current tab to display
         if (tabs.length > 0 && !injectedTabs.includes(tabs[0].id)) {
-            console.log("creating notification");
             injectedTabs.push(tabs[0].id);
             chrome.tabs.executeScript(tabs[0].id, {file: 'messageNotification.js'}, function () {
                 chrome.tabs.insertCSS(tabs[0].id, {file: "messageNotification.css"}, function () {
                     chrome.tabs.sendMessage(tabs[0].id, messageToAccess);
                 });
             });
+          // sends the message to the current tab to display  
         } else if (tabs.length > 0) {
             chrome.tabs.sendMessage(tabs[0].id, messageToAccess);
+          // if no valid url then either sends message to chrome extension pages in case that is their 
+          // active tab or calls onNoOpenTabs callback
         } else {
-            runtime.sendMessage(messageIdentifier + messageToAccess);
-        }
-
-        storage.get(MESSAGE_ARCHIVE, function(messages) {
-            let messageArray = messages[MESSAGE_ARCHIVE];
-    
-            if(!messageArray.includes(messageToAccess)) {
-                messageArray.push(messageToAccess);
-                console.log(messageArray);
-                storage.set({[MESSAGE_ARCHIVE]: messageArray});
+            if (onNoOpenTabs) {
+                onNoOpenTabs();
+            } else {
+                runtime.sendMessage(messageIdentifier + messageToAccess);
             }
-        });
+        }
     });
 }
 
@@ -264,12 +277,14 @@ function goToBreak() {
                 delayInMinutes: minToGoBreakUntil,
             });
             setTimeStorageOfAlarm(BREAK_ALARM_TIME_STORAGE, minToGoBreakUntil);
-            notifications.create(MESSAGE_NOTIFICATION_NAME, {
-                type: 'basic',
-                iconUrl: '../icons/heart.jpg',
-                title: "Time to take a break",
-                message: "Take a break, you deserve it",
-                silent: true
+            displayNotificationInCurrentTab("Time to take a break", () => {
+                notifications.create(MESSAGE_NOTIFICATION_NAME, {
+                    type: 'basic',
+                    iconUrl: '../icons/heart.jpg',
+                    title: "Time to take a break",
+                    message: "Take a break, you deserve it",
+                    silent: true
+                });
             });
             printAlarm(BREAK_ALARM_NAME);
         });
