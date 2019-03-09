@@ -266,7 +266,7 @@ function goToBreak() {
             setTimeStorageOfAlarm(BREAK_ALARM_TIME_STORAGE, minToGoBreakUntil);
             notifications.create(MESSAGE_NOTIFICATION_NAME, {
                 type: 'basic',
-                iconUrl: 'icons/heart.jpg',
+                iconUrl: '../icons/heart.jpg',
                 title: "Time to take a break",
                 message: "Take a break, you deserve it",
                 silent: true

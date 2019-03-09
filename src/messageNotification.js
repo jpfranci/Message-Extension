@@ -1,3 +1,6 @@
+let lastMessageTime;
+
+// shows notification until user clicks on it or a minute has passed
 function showNotification(message) {
     let montserratFontFace = new FontFace('Montserrat', 'url(https://fonts.gstatic.com/s/' +
         'montserrat/v12/JTUSjIg1_i6t8kCHKm459Wlhyw.woff2)');
@@ -25,9 +28,13 @@ function showNotification(message) {
 
     setTimeout(function () {
         newMessage.remove();
-    }, 12000);
+    }, 1000 * 15);
 }
 
 chrome.runtime.onMessage.addListener( function(message, sender, sendResponse) {
-    showNotification(message);
+    // ensure that messages only appear max every 5 seconds
+    if (!lastMessageTime || Date.now() - lastMessageTime >= 5 * 1000){
+        lastMessageTime = Date.now();
+        showNotification(message);
+    }
 });
