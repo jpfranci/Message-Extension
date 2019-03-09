@@ -109,6 +109,11 @@ chrome.storage.onChanged.addListener(function(changes, namespace) {
         storage.get([BLOCKED_SITE_STORAGE], (changes) => {
             if(changes[BLOCKED_SITE_STORAGE]) {
                 urlsToBlock = changes[BLOCKED_SITE_STORAGE];
+                storage.get(BLOCKED_STATUS, (data) => {
+                    if (data[BLOCKED_STATUS]) {
+                        clearBlockedSites();
+                    }
+                });
             }
         });
     }
@@ -126,19 +131,29 @@ function tryToRemoveTabs() {
 
     setTimeout(function () {
         notifications.clear(MESSAGE_NOTIFICATION_NAME);
-        if (urlsToBlock.length > 0) {
-            chrome.tabs.query({url: urlsToBlock}, (tabs) => {
-                for (let tab of tabs) {
-                    chrome.tabs.remove(tab.id);
-                }});
-        }
+        clearBlockedSites();
     }, 5000);
 }
 
+function clearBlockedSites() {
+    if (urlsToBlock.length > 0) {
+        chrome.tabs.query({url: urlsToBlock}, (tabs) => {
+            tabs.forEach(
+                (tab) => { chrome.tabs.remove(tab.id) }
+            );
+        });
+    }
+}
+
 function removeTabsIfNeeded() {
-    chrome.tabs.query({url: urlsToBlock}, function (tabs) {
-        if (tabs.length > 0) {
-            tryToRemoveTabs();
+    storage.get(BLOCKED_SITE_STORAGE, (data) => {
+        if (data[BLOCKED_SITE_STORAGE]) {
+            urlsToBlock = data[BLOCKED_SITE_STORAGE];
+            chrome.tabs.query({url: data[BLOCKED_SITE_STORAGE]}, function (tabs) {
+                if (tabs.length > 0) {
+                    tryToRemoveTabs();
+                }
+            });
         }
     });
 }
