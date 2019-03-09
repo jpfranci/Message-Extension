@@ -42,12 +42,21 @@ document.getElementById('website-button').addEventListener('click', () => {
         new URL(urlEntered);
         let tmp = document.createElement('a');
         tmp.href = urlEntered;
-        if (!urlsToBlock.includes("*://*." + tmp.hostname + "/*")) {
-            urlsToBlock.push("*://*." + tmp.hostname + "/*");
+        // getting justDomainName for example sub.main.com becomes main.com
+        let justDomainName = tmp.hostname.split(".");
+        if (justDomainName.length >= 2) {
+            justDomainName = 
+                `${justDomainName[justDomainName.length - 2]}.${justDomainName[justDomainName.length - 1]}`;
+        } else {
+            justDomainName = tmp.hostname;
+        }
+
+        if (!urlsToBlock.includes("*://*." + justDomainName + "/*")) {
+            urlsToBlock.push("*://*." + justDomainName + "/*");
             if (document.getElementById('noBlock')) {
                 document.getElementById('noBlock').remove();
             }
-            addEntry(tmp.hostname, false);
+            addEntry(justDomainName, false);
             setBlockStorage();
         } else {
             alert("Error: Already have that site blocked");
