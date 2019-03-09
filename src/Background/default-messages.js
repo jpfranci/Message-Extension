@@ -1,4 +1,4 @@
-let messages = [
+let defaultMessages = [
     "Life isn’t about getting and having, it’s about giving and being. -  Kevin Kruse"
   , "Whatever the mind of man can conceive and believe, it can achieve. -  Napoleon Hill"
   , "Strive not to be a success, but rather to be of value. -  Albert Einstein"
@@ -103,4 +103,4 @@ let messages = [
   , "If you can dream it, you can achieve it. -  Zig Ziglar"
   ];
 
-  export {messages};
+  export {defaultMessages};

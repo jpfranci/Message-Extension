@@ -1,6 +1,6 @@
 import {PROGRAM_END_MESSAGE, PROGRAM_START_MESSAGE, PROGRAM_STATE} from "./popup.js";
 import {config} from './firebase-config.js';
-import {messages} from './default-messages.js';
+import {defaultMessages} from './default-messages.js';
 
 const DEFAULT_MESSAGE_FREQUENCY = 15;
 const DEFAULT_BLOCKED_TIME = 25;
@@ -29,7 +29,6 @@ const messageIdentifier = "message:";
 
 let urlsToBlock = [];
 let notificationMessages;
-let notificationMessageLength;
 let injectedTabs = [];
 let isBlocked;
 let messageToAccess;
@@ -44,14 +43,22 @@ try {
      // listen to firebase and get anything new
      database.collection("Messages").doc("Test")
      .onSnapshot(function(doc) {
-         notificationMessages = doc.data().messages;
-         notificationMessageLength = notificationMessages.length;
-         console.log(notificationMessages);
+         filterAlreadyUsedMessages(doc.data().messages);
      });
 } catch(error) {
-    notificationMessages = messages;
-    notificationMessageLength = messages.length;
-    console.log(notificationMessages);
+    filterAlreadyUsedMessages(defaultMessages);
+}
+
+function filterAlreadyUsedMessages(tempMessages) {
+    storage.get([MESSAGE_ARCHIVE], (data) => {
+        if (!data[MESSAGE_ARCHIVE]) {
+            notificationMessages = tempMessages;
+        } else {
+            notificationMessages = tempMessages.filter(message => {
+                return !data[MESSAGE_ARCHIVE].includes(message);
+            });
+        }
+    })
 }
 
 /* Sets state of this chrome extension on install.
@@ -228,7 +235,8 @@ alarms.onAlarm.addListener(function (alarm) {
 });
 
 function createMessageNotification() {
-    messageToAccess = notificationMessages[getRandomIndexToAccess(notificationMessageLength)];
+    let randomIndex = getRandomIndexToAccess(notificationMessages.length);
+    messageToAccess = notificationMessages[randomIndex];
     displayNotificationInCurrentTab(messageToAccess, () => {
         notifications.create(MESSAGE_NOTIFICATION_NAME, {
             type: 'basic',
@@ -240,9 +248,10 @@ function createMessageNotification() {
         });
     });
 
+    // remove message from pool of notification messages
+    notificationMessages.splice(randomIndex, 1);
     storage.get(MESSAGE_ARCHIVE, function(messages) {
         let messageArray = messages[MESSAGE_ARCHIVE];
-
         if(!messageArray.includes(messageToAccess)) {
             messageArray.push(messageToAccess);
             storage.set({[MESSAGE_ARCHIVE]: messageArray});
